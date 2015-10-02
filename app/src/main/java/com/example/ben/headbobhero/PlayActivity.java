@@ -7,6 +7,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 public class PlayActivity extends Activity {
 
     //Divide the frame by 1000 to calculate how many times per second the screen will update.
@@ -16,6 +20,7 @@ public class PlayActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
+
 
         Handler h = new Handler();
         h.postDelayed(new Runnable() {
@@ -29,9 +34,6 @@ public class PlayActivity extends Activity {
     private Handler frame = new Handler();
 
     synchronized public void initGfx() {
-        //((GameBoard)findViewById(R.id.the_canvas)).resetStarField();
-        //It's a good idea to remove any existing callbacks to keep
-        //them from inadvertently stacking up.
         frame.removeCallbacks(frameUpdate);
         frame.postDelayed(frameUpdate, FRAME_RATE);
     }
