@@ -7,11 +7,24 @@
     android:id="@+id/main_activity">
 
     <Button
-        android:id="@+id/the_button"
+        android:id="@+id/play_button"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
         android:enabled="true"
         android:text="@string/play_text" />
+
+    <Button
+        android:id="@+id/record_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:enabled="true"
+        android:text="@string/record_text"
+        android:layout_below="@+id/play_button"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="36dp" />
+
 </RelativeLayout>

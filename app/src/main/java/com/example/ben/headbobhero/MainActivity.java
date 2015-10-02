@@ -3,13 +3,11 @@ package com.example.ben.headbobhero;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 
-public class MainActivity extends Activity  implements View.OnClickListener {
+public class MainActivity extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -38,17 +36,24 @@ public class MainActivity extends Activity  implements View.OnClickListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ((Button)findViewById(R.id.the_button)).setOnClickListener(this);
+        findViewById(R.id.play_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent playIntent = new Intent(MainActivity.this, PlayActivity.class);
+                playIntent.setAction("play_headbobs");
+                startActivity(playIntent);
+            }
+        });
 
-        Intent recordingIntent = new Intent(this, RecordingActivity.class);
-        recordingIntent.setAction("record_headbobs");
-        //startActivity(recordingIntent);
+        findViewById(R.id.record_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent recordingIntent = new Intent(MainActivity.this, RecordingActivity.class);
+                recordingIntent.setAction("record_headbobs");
+                startActivity(recordingIntent);
+            }
+        });
+
     }
 
-    @Override
-    synchronized public void onClick(View v) {
-        Intent playIntent = new Intent(this, PlayActivity.class);
-        playIntent.setAction("play_headbobs");
-        startActivity(playIntent);
-    }
 }

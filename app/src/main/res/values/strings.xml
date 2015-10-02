@@ -3,6 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_play">PlayActivity</string>
+    <string name="title_activity_play">Playing Head Bob Hero</string>
     <string name="play_text">Play</string>
+    <string name="record_text">Record</string>
 </resources>
