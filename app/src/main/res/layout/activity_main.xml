@@ -8,21 +8,10 @@
 
     <Button
         android:id="@+id/the_button"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:gravity="center"
-        android:enabled="false"
-        android:text="Reset"
-        android:layout_alignTop="@+id/the_canvas"
-        android:layout_alignLeft="@+id/the_canvas" />
-
-    <com.example.ben.headbobhero.GameBoard
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/the_canvas"
-        android:layout_marginLeft="0dp"
-        android:layout_marginBottom="0dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true" />
+        android:enabled="true"
+        android:text="@string/play_text" />
 </RelativeLayout>

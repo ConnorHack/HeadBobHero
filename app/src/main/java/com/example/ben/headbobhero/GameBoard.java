@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Random;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -14,18 +16,21 @@ import android.view.View;
 public class GameBoard extends View{
     private Paint p;
     private List<HeadBob> headBobs = null;
-    private int starAlpha = 80;
-    private int starFade = 2;
 
-    synchronized public void resetStarField() {
-        headBobs = null;
-    }
+    private static Bitmap bm_bob_down = null;
+    private static Bitmap bm_bob_left = null;
+    private static Bitmap bm_bob_right = null;
+
 
     public GameBoard(Context context, AttributeSet aSet) {
         super(context, aSet);
         //it's best not to create any new objects in the on draw
         //initialize them as class variables here
         p = new Paint();
+
+        bm_bob_down = BitmapFactory.decodeResource(getResources(), R.drawable.bob_down);
+        bm_bob_left = BitmapFactory.decodeResource(getResources(), R.drawable.bob_left);
+        bm_bob_right = BitmapFactory.decodeResource(getResources(), R.drawable.bob_right);
     }
 
     private enum HeadBobDirection {
@@ -45,9 +50,9 @@ public class GameBoard extends View{
 
     private void initializeHeadBobs(int maxX, int maxY) {
         headBobs = new ArrayList<HeadBob>();
-        for (int i=0; i<3; i++) {
+        for (int i=0; i<10; i++) {
             Random r = new Random();
-            int x = i * 100;
+            int x = i * -128;
             int y = maxY / 2 - 50;
             int directionInt = r.nextInt(3);
             HeadBobDirection direction = null;
@@ -82,20 +87,22 @@ public class GameBoard extends View{
         //draw the stars
 
         p.setStrokeWidth(100);
-        for (int i=0; i<3; i++) {
+        for (int i=0; i<headBobs.size(); i++) {
             HeadBob bob = headBobs.get(i);
-            switch (bob.direction) {
-                case DOWN:
-                    p.setColor(Color.BLUE);
-                    break;
-                case LEFT:
-                    p.setColor(Color.RED);
-                    break;
-                case RIGHT:
-                    p.setColor(Color.GREEN);
-                    break;
+            if(bob.point.x > 0) {
+                switch (bob.direction) {
+                    case DOWN:
+                        canvas.drawBitmap(bm_bob_down, bob.point.x += 2, bob.point.y, null);
+                        break;
+                    case LEFT:
+                        canvas.drawBitmap(bm_bob_left, bob.point.x += 2, bob.point.y, null);
+                        break;
+                    case RIGHT:
+                        canvas.drawBitmap(bm_bob_right, bob.point.x += 2, bob.point.y, null);
+                        break;
+                }
             }
-            canvas.drawPoint(headBobs.get(i).point.x, headBobs.get(i).point.y, p);
+            bob.point.x+=2;
         }
     }
 }
