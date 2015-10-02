@@ -1,6 +1,7 @@
 package com.example.ben.headbobhero;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -49,6 +50,9 @@ public class MainActivity extends Activity  implements View.OnClickListener {
                 initGfx();
             }
         }, 1000);
+        Intent recordingIntent = new Intent(this, RecordingActivity.class);
+        recordingIntent.setAction("record_headbobs");
+        startActivity(recordingIntent);
     }
 
     synchronized public void initGfx() {
