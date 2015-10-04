@@ -118,7 +118,7 @@ public class RecordingActivity extends Activity implements SensorEventListener {
 
         // Check first to make sure we are supposed to be collecting results
         if (mIsRecording) {
-            if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 mGravity = lowPassFilter(event.values, mGravity);
             }
 
@@ -126,30 +126,27 @@ public class RecordingActivity extends Activity implements SensorEventListener {
                  //DEBUG STATEMENT: Testing certain head-bob thresholds
                  //System.out.println(mGravity[0] + " " + mGravity[1] + " " + mGravity[2]);
                 long now = System.currentTimeMillis();
-                if(now < lastBobTime + 1000) {
+                if(now < lastBobTime + 500) {
                     return;
                 }
                 lastBobTime = now;
 
                 long offset = bobRecordingState.currentOffset;
 
-                if(offset + 500 < lastOffset) {
-                    return;
-                }
-                lastOffset = offset;
+                //if(offset + 500 < lastOffset) {
+                //    return;
+                //}
+                //lastOffset = offset;
 
                  if (mGravity[0] < -2.7) {
                       GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.RIGHT));
                      System.out.println(offset + " RIGHT");
-                     lastBobTime = offset;
                  } else if (mGravity[0] > 2.7) {
                      GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.LEFT));
                      System.out.println(offset + " LEFT");
-                     lastBobTime = offset;
                  } else if (mGravity[1] < 9.5) {
                      GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.DOWN));
                      System.out.println(offset + " DOWN");
-                     lastBobTime = offset;
                  }
             }
         }
