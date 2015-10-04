@@ -10,9 +10,9 @@ import android.graphics.Point;
 class HeadBob {
     public HeadBobDirection direction;
 
-    public int offset;
+    public long offset;
 
-    public HeadBob(int offset, HeadBobDirection direction) {
+    public HeadBob(long offset, HeadBobDirection direction) {
         this.direction = direction;
         this.offset = offset;
     }

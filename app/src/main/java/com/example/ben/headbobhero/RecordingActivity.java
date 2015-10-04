@@ -7,8 +7,12 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Connor on 10/1/2015.
@@ -47,6 +51,18 @@ public class RecordingActivity extends Activity implements SensorEventListener {
 
     private boolean mIsRecording ;
 
+    private long timeStart;
+
+    private long lastBobTime;
+
+    private long lastOffset;
+
+    private class BobRecording {
+        public long currentOffset;
+    }
+
+    private final BobRecording bobRecordingState = new BobRecording();
+
     /////////////////////////////////////////////////////
     // Below methods are for the extension of Activity //
     /////////////////////////////////////////////////////
@@ -57,6 +73,8 @@ public class RecordingActivity extends Activity implements SensorEventListener {
 
         // Initialize any globals that need to be initialized
         initGlobals();
+        frame.removeCallbacks(frameUpdate);
+        frame.postDelayed(frameUpdate, FRAME_RATE);
 
         //TODO setContentView(R.layout.*****)
     }
@@ -105,14 +123,34 @@ public class RecordingActivity extends Activity implements SensorEventListener {
             }
 
             if (mGravity != null) {
-                /* DEBUG STATEMENT: Testing certain head-bob thresholds
-                 * System.out.println(mGravity[0] + " " + mGravity[1] + " " + mGravity[2]);
-                 * if (mGravity[0] < -3) {
-                 *     System.out.println("Right");
-                 * } else if (mGravity[0] > 3) {
-                 *     System.out.println("Left");
-                 * }
-                 */
+                 //DEBUG STATEMENT: Testing certain head-bob thresholds
+                 //System.out.println(mGravity[0] + " " + mGravity[1] + " " + mGravity[2]);
+                long now = System.currentTimeMillis();
+                if(now < lastBobTime + 1000) {
+                    return;
+                }
+                lastBobTime = now;
+
+                long offset = bobRecordingState.currentOffset;
+
+                if(offset + 500 < lastOffset) {
+                    return;
+                }
+                lastOffset = offset;
+
+                 if (mGravity[0] < -2.7) {
+                      GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.RIGHT));
+                     System.out.println(offset + " RIGHT");
+                     lastBobTime = offset;
+                 } else if (mGravity[0] > 2.7) {
+                     GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.LEFT));
+                     System.out.println(offset + " LEFT");
+                     lastBobTime = offset;
+                 } else if (mGravity[1] < 9.5) {
+                     GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.DOWN));
+                     System.out.println(offset + " DOWN");
+                     lastBobTime = offset;
+                 }
             }
         }
     }
@@ -131,6 +169,7 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         mGravity = new float[3] ;
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensorGravity = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+        timeStart = System.currentTimeMillis();
 
         // Check to ensure the gravity sensor is functional on the device
         if (mSensorGravity == null) {
@@ -167,4 +206,20 @@ public class RecordingActivity extends Activity implements SensorEventListener {
 
         return output ;
     }
+
+    private static final int FRAME_RATE = 20; //50 frames per second
+
+    private Handler frame = new Handler();
+
+
+    private Runnable frameUpdate = new Runnable() {
+        @Override
+        synchronized public void run() {
+            frame.removeCallbacks(frameUpdate);
+            //make any updates to on screen objects here
+            //then invoke the on draw by invalidating the canvas
+            bobRecordingState.currentOffset -=4;
+            frame.postDelayed(frameUpdate, FRAME_RATE);
+        }
+    };
 }

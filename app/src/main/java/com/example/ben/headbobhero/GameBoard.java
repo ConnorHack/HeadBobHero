@@ -19,7 +19,7 @@ public class GameBoard extends View{
     private Paint textPaint;
 
     boolean hasInitializedBobs = false;
-    public static List<HeadBob> headBobs = null;
+    public static List<HeadBob> headBobs = new ArrayList<HeadBob>();
 
     private final Bitmap bm_bob_down;
     private final Bitmap bm_bob_left;
@@ -41,7 +41,7 @@ public class GameBoard extends View{
 
     private void initializeHeadBobs() {
 
-        if(headBobs == null) {
+        if(headBobs.size() == 0) {
             headBobs = new ArrayList<HeadBob>();
             for (int i = 0; i < 10; i++) {
                 Random r = new Random();
@@ -99,7 +99,7 @@ public class GameBoard extends View{
                 headBobIterator.remove();
             }
 
-            bob.offset +=3;
+            bob.offset +=4;
         }
 
         if(headBobs.size() == 0) {
@@ -115,6 +115,14 @@ public class GameBoard extends View{
             int yPos = (int) ((canvas.getHeight() / 2) - ((textPaint.descent() + textPaint.ascent()) / 2));
             canvas.drawText("Game Over", xPos, yPos, textPaint);
         } else {
+
+            textPaint.setColor(Color.WHITE);
+            textPaint.setAlpha(255);
+            textPaint.setTextAlign(Paint.Align.LEFT);
+            textPaint.setTypeface(Typeface.SANS_SERIF);
+            textPaint.setTextSize(18);
+
+            canvas.drawText("Bobs Left: " + headBobs.size(), 20, 20, textPaint);
 
             p.setStrokeWidth(10);
             p.setColor(Color.RED);
