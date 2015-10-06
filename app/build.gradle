@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 'Vuzix Corporation:Vuzix M100 Add-On:15'
+    compileSdkVersion 15
     buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "com.example.ben.headbobhero"
-        minSdkVersion 'Vuzix Corporation:Vuzix M100 Add-On:15'
-        targetSdkVersion 'Vuzix Corporation:Vuzix M100 Add-On:15'
+        minSdkVersion 8
+        targetSdkVersion 15
         versionCode 1
         versionName "1.0"
     }
