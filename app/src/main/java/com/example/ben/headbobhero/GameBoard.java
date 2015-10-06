@@ -61,7 +61,7 @@ public class GameBoard extends View{
                         break;
                 }
 
-                headBobs.add(new HeadBob(i * -128, direction));
+                headBobs.add(new HeadBob(i * 128, direction));
             }
         }
     }
@@ -83,23 +83,24 @@ public class GameBoard extends View{
         Iterator<HeadBob> headBobIterator = headBobs.iterator();
         while (headBobIterator.hasNext()) {
             HeadBob bob = headBobIterator.next();
-            if(bob.offset > -128 && bob.offset < getWidth()) {
+            long bobOffset = bob.offset + getWidth();
+            if(bobOffset > -128 && bobOffset < getWidth()) {
                 switch (bob.direction) {
                     case DOWN:
-                        canvas.drawBitmap(bm_bob_down, bob.offset, bobYPos, null);
+                        canvas.drawBitmap(bm_bob_down,bobOffset, bobYPos, null);
                         break;
                     case LEFT:
-                        canvas.drawBitmap(bm_bob_left, bob.offset, bobYPos, null);
+                        canvas.drawBitmap(bm_bob_left, bobOffset, bobYPos, null);
                         break;
                     case RIGHT:
-                        canvas.drawBitmap(bm_bob_right, bob.offset, bobYPos, null);
+                        canvas.drawBitmap(bm_bob_right, bobOffset, bobYPos, null);
                         break;
                 }
-            } else if(bob.offset > getWidth()) {
+            } else if(bobOffset< -128) {
                 headBobIterator.remove();
             }
 
-            bob.offset +=4;
+            bob.offset -=4;
         }
 
         if(headBobs.size() == 0) {
@@ -118,15 +119,15 @@ public class GameBoard extends View{
 
             textPaint.setColor(Color.WHITE);
             textPaint.setAlpha(255);
-            textPaint.setTextAlign(Paint.Align.LEFT);
+            textPaint.setTextAlign(Paint.Align.RIGHT);
             textPaint.setTypeface(Typeface.SANS_SERIF);
             textPaint.setTextSize(18);
 
-            canvas.drawText("Bobs Left: " + headBobs.size(), 20, 20, textPaint);
+            canvas.drawText("Bobs Left: " + headBobs.size(), getWidth() - 20, 20, textPaint);
 
             p.setStrokeWidth(10);
             p.setColor(Color.RED);
-            canvas.drawLine(getWidth() - 128, 0, getWidth() - 128, getHeight(), p);
+            canvas.drawLine(128, 0, 128, getHeight(), p);
         }
     }
 }
