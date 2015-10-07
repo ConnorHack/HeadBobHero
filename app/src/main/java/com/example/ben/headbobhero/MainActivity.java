@@ -45,6 +45,15 @@ public class MainActivity extends Activity {
             }
         });
 
+        findViewById(R.id.import_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent playIntent = new Intent(MainActivity.this, PlayActivity.class);
+                playIntent.setAction("play_headbobs");
+                startActivity(playIntent);
+            }
+        });
+
         findViewById(R.id.record_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -53,6 +62,8 @@ public class MainActivity extends Activity {
                 startActivity(recordingIntent);
             }
         });
+
+
 
     }
 

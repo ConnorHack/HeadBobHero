@@ -6,4 +6,5 @@
     <string name="title_activity_play">Playing Head Bob Hero</string>
     <string name="play_text">Play</string>
     <string name="record_text">Record</string>
+    <string name="import_text">Import</string>
 </resources>
