@@ -54,8 +54,8 @@ public class MainActivity extends Activity {
             public void onItemClick(AdapterView<?> parentAdapter, View view, int position,
                                     long id) {
 
-                Intent playIntent = new Intent(MainActivity.this, PlayActivity.class);
-                playIntent.setAction("play_headbobs");
+                Intent playIntent = new Intent(MainActivity.this, SongActivity.class);
+                playIntent.setAction("song_menu");
                 startActivity(playIntent);
 
             }

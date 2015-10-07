@@ -1,16 +1,35 @@
 package com.example.ben.headbobhero;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
-public class SongActiviy extends Activity {
+public class SongActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_activiy);
+        findViewById(R.id.play_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent playIntent = new Intent(SongActivity.this, PlayActivity.class);
+                playIntent.setAction("play_headbobs");
+                startActivity(playIntent);
+            }
+        });
+
+        findViewById(R.id.record_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent recordingIntent = new Intent(SongActivity.this, RecordingActivity.class);
+                recordingIntent.setAction("record_headbobs");
+                startActivity(recordingIntent);
+            }
+        });
     }
 
     @Override

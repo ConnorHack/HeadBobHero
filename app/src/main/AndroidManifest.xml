@@ -24,7 +24,7 @@
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
         <activity
-            android:name=".SongActiviy"
+            android:name=".SongActivity"
             android:label="@string/title_activity_song_activiy" >
         </activity>
         <activity
