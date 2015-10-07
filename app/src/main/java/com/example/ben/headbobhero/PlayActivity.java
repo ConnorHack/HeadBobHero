@@ -38,6 +38,10 @@ public class PlayActivity extends Activity {
     public void playMusic(){
         MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
         mediaPlayer.start();
+        //need some way to "wait" here while song plays, media player must be closed after
+        //or it will continue to use resources
+        mediaPlayer.release();
+        mediaPlayer = null;
     }
 
     synchronized public void initGfx() {
