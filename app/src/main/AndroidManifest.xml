@@ -16,6 +16,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".RecordingActivity" >
+        </activity>
+        <activity
+            android:name=".PlayActivity"
+            android:label="@string/title_activity_play"
+            android:theme="@android:style/Theme.NoTitleBar">
+        </activity>
     </application>
 
 </manifest>

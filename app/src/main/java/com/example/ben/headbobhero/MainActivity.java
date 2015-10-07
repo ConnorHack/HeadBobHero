@@ -1,17 +1,13 @@
 package com.example.ben.headbobhero;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 public class MainActivity extends Activity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -34,4 +30,30 @@ public class MainActivity extends Activity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        findViewById(R.id.play_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent playIntent = new Intent(MainActivity.this, PlayActivity.class);
+                playIntent.setAction("play_headbobs");
+                startActivity(playIntent);
+            }
+        });
+
+        findViewById(R.id.record_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent recordingIntent = new Intent(MainActivity.this, RecordingActivity.class);
+                recordingIntent.setAction("record_headbobs");
+                startActivity(recordingIntent);
+            }
+        });
+
+    }
+
 }
