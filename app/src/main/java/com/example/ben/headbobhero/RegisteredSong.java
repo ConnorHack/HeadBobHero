@@ -1,5 +1,9 @@
 package com.example.ben.headbobhero;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -36,7 +40,7 @@ public class RegisteredSong {
     {
         this.bobPattern.clear();
     }
-    
+
     public String getSongPath()
     {
         return this.songPath;
@@ -55,4 +59,34 @@ public class RegisteredSong {
     public void setNewDifficulty(int diff) {
         this.difficulty = diff;
     }
+
+    // Serialize the Song data to JSON
+    public static String toJSon(RegisteredSong song)
+    {
+        try
+        {
+            JSONObject obj = new JSONObject();
+            obj.put("SongName", song.getSongName());
+            obj.put("SongPath", song.getSongPath());
+            obj.put("Difficulty", song.getSongPath());
+
+            JSONArray bobArray = new JSONArray();
+            for(HeadBob bob : song.getBobPattern())
+            {
+                JSONObject bobObj = new JSONObject();
+                bobObj.put("Direction", bob.direction);
+                bobObj.put("Offset", bob.offset);
+                bobArray.put(bobObj);
+            }
+            obj.put("BobPattern", bobArray);
+
+            return obj.toString();
+        }
+        catch(JSONException e)
+        {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
+
