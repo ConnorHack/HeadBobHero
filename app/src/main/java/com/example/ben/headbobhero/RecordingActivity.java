@@ -32,14 +32,15 @@ public class RecordingActivity extends Activity implements SensorEventListener {
      * DELAY_UI:        17.14 records per second
      * DELAY_GAME:      75.00 records per second
      * DELAY_FASTEST:   285.71 records per second
-      */
+
     public static final int DELAY_NORMAL = SensorManager.SENSOR_DELAY_NORMAL;
     public static final int DELAY_UI = SensorManager.SENSOR_DELAY_UI;
     public static final int DELAY_GAME = SensorManager.SENSOR_DELAY_GAME;
     public static final int DELAY_FASTEST = SensorManager.SENSOR_DELAY_FASTEST;
+    */
 
     // Rate at which to collect values from sensors
-    private static int RATE = DELAY_FASTEST;
+    private static int RATE = SensorManager.SENSOR_DELAY_FASTEST;
 
     // Globals needed to collect values from device's sensors
     private SensorManager mSensorManager;
@@ -138,17 +139,17 @@ public class RecordingActivity extends Activity implements SensorEventListener {
                 //}
                 //lastOffset = offset;
                 if (!mRegisteringBob) {
-                    if (mGravity[0] < -2.0) {
+                    if (mGravity[0] < HeadBob.THRESHOLD_BOB_RIGHT) {
                         GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.RIGHT));
                         System.out.println(offset + " RIGHT");
                         mRegisteringBob = true;
                         mCurrentBob = HeadBobDirection.RIGHT;
-                    } else if (mGravity[0] > 0.5) {
+                    } else if (mGravity[0] > HeadBob.THRESHOLD_BOB_LEFT) {
                         GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.LEFT));
                         System.out.println(offset + " LEFT");
                         mRegisteringBob = true;
                         mCurrentBob = HeadBobDirection.LEFT;
-                    } else if (mGravity[1] < 9.3) {
+                    } else if (mGravity[1] < HeadBob.THRESHOLD_BOB_DOWN) {
                         GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.DOWN));
                         System.out.println(offset + " DOWN");
                         mRegisteringBob = true;
@@ -157,21 +158,21 @@ public class RecordingActivity extends Activity implements SensorEventListener {
                 } else {
                     switch (mCurrentBob) {
                         case RIGHT:
-                            if (mGravity[0] > -2.0) {
+                            if (mGravity[0] > HeadBob.THRESHOLD_BOB_RIGHT) {
                                 mRegisteringBob = false;
                                 mCurrentBob = null;
                                 System.out.println(offset + " REST from RIGHT");
                             }
                             break;
                         case LEFT:
-                            if (mGravity[0] < 0.5) {
+                            if (mGravity[0] < HeadBob.THRESHOLD_BOB_LEFT) {
                                 mRegisteringBob = false;
                                 mCurrentBob = null;
                                 System.out.println(offset + " REST from LEFT");
                             }
                             break;
                         case DOWN:
-                            if (mGravity[1] > 9.3) {
+                            if (mGravity[1] > HeadBob.THRESHOLD_BOB_DOWN) {
                                 mRegisteringBob = false;
                                 mCurrentBob = null;
                                 System.out.println(offset + " REST from DOWN");
@@ -199,6 +200,7 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         mGravity = new float[3];
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mSensorGravity = mSensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY);
+
         timeStart = System.currentTimeMillis();
 
         // Check to ensure the gravity sensor is functional on the device
@@ -224,7 +226,7 @@ public class RecordingActivity extends Activity implements SensorEventListener {
      * Allows low-frequency signals to pass and will reduce the amplitude of
      * high frequency signals.
      */
-    public float[] lowPassFilter(float[] input, float[] output) {
+    public static float[] lowPassFilter(float[] input, float[] output) {
 
         // Return if the size of the two lists do not match
         if (output.length != input.length) {

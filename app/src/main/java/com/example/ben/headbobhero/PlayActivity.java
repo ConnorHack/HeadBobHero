@@ -6,11 +6,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Button;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 public class PlayActivity extends Activity {
 

@@ -1,9 +1,5 @@
 package com.example.ben.headbobhero;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Point;
-
 /**
  * Created by Ben on 10/2/2015.
  */
@@ -11,6 +7,10 @@ class HeadBob {
     public HeadBobDirection direction;
 
     public long offset;
+
+    public static final double THRESHOLD_BOB_LEFT = 0.5 ;
+    public static final double THRESHOLD_BOB_RIGHT = -2.0 ;
+    public static final double THRESHOLD_BOB_DOWN = 9.3 ;
 
     public HeadBob(long offset, HeadBobDirection direction) {
         this.direction = direction;
