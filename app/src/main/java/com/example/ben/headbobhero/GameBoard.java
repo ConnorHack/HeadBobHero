@@ -11,6 +11,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +27,9 @@ public class GameBoard extends View implements SensorEventListener {
 
     boolean hasInitializedBobs = false;
     public static List<HeadBob> headBobs = new ArrayList<HeadBob>();
+
+    private Runnable gameOverRunnable = null;
+    private Boolean calledGameOverRunnable = false;
 
     private final static String DEBUG = "GameBoard";
 
@@ -46,6 +50,29 @@ public class GameBoard extends View implements SensorEventListener {
     // Defines if we have received a correct head-bob
     private Boolean hasScannedCorrectBob = false;
     private boolean scanning = false;
+
+    private final String[] bobMatchStrings = {"Nice!", "Cool!", "Great!", "Awesome!"};
+
+    private final String[] bobFailStrings = {"Boo", "Miss", "Fail", "Nope"};
+
+    private int bobsMatched = 0;
+    private int bobsMissed = 0;
+
+    private Random random = new Random();
+
+
+    private class GameFeedbackString {
+        public String text = "";
+    }
+    private final GameFeedbackString gameFeedbackString = new GameFeedbackString();
+
+    private Handler gameFeedbackRemoveHandler = new Handler();
+    private Runnable gameFeedbackRemoveRunnable = new Runnable() {
+        @Override
+        public void run() {
+            gameFeedbackString.text = "";
+        }
+    };
 
     public GameBoard(Context context, AttributeSet aSet) {
         super(context, aSet);
@@ -69,6 +96,10 @@ public class GameBoard extends View implements SensorEventListener {
             Log.e(DEBUG, "Device does not possess a gravity sensor. "
                     + "This application will not function properly.");
         }
+    }
+
+    public void setGameOverRunnable(Runnable runnable) {
+        gameOverRunnable = runnable;
     }
 
 
@@ -99,6 +130,10 @@ public class GameBoard extends View implements SensorEventListener {
         }
     }
 
+    private int getBobPercentage() {
+        return Math.round(((float) bobsMatched / (float) (bobsMatched + bobsMissed)) * 100);
+    }
+
     @Override
     synchronized public void onDraw(Canvas canvas) {
         //create a black canvas
@@ -107,8 +142,21 @@ public class GameBoard extends View implements SensorEventListener {
         p.setStrokeWidth(1);
         canvas.drawRect(0, 0, getWidth(), getHeight(), p);
         //initialize the starfield if needed
+        boolean shouldDrawLine = hasInitializedBobs;
         if (!hasInitializedBobs) {
             initializeHeadBobs();
+
+            textPaint.setColor(Color.WHITE);
+            textPaint.setAlpha(255);
+            textPaint.setTextAlign(Paint.Align.CENTER);
+            textPaint.setTypeface(Typeface.SANS_SERIF);
+            textPaint.setTextSize(48);
+
+
+            int xPos = (canvas.getWidth() / 2);
+            int yPos = (int) ((canvas.getHeight() / 2) - ((textPaint.descent() + textPaint.ascent()) / 2));
+            canvas.drawText("Ready...", xPos, yPos, textPaint);
+
             hasInitializedBobs = true;
         }
         int bobYPos = canvas.getHeight() / 2 - 50;
@@ -140,13 +188,21 @@ public class GameBoard extends View implements SensorEventListener {
                 scanning = true;
             }
 
-            if (bobOffset < -128) {
+            if ((bobOffset < -128 && !hasScannedCorrectBob) || (bobOffset < 128 && hasScannedCorrectBob && scanForHeadBob == bob.direction)) {
                 if (hasScannedCorrectBob) {
                     Log.d("play", "got bob: " + scanForHeadBob);
+                    gameFeedbackString.text = bobMatchStrings[random.nextInt(bobMatchStrings.length)];
+                    bobsMatched++;
                 } else {
                     Log.d("play", "did not get bob " + bob.direction
                             + ": got " + scanForHeadBob + " instead");
+
+                    gameFeedbackString.text = bobFailStrings[random.nextInt(bobFailStrings.length)];
+                    bobsMissed++;
                 }
+                gameFeedbackRemoveHandler.removeCallbacks(gameFeedbackRemoveRunnable);
+                gameFeedbackRemoveHandler.postDelayed(gameFeedbackRemoveRunnable, 1000);
+
                 scanForHeadBob = null;
                 hasScannedCorrectBob = false;
                 headBobIterator.remove();
@@ -166,23 +222,42 @@ public class GameBoard extends View implements SensorEventListener {
 
             int xPos = (canvas.getWidth() / 2);
             int yPos = (int) ((canvas.getHeight() / 2) - ((textPaint.descent() + textPaint.ascent()) / 2));
-            canvas.drawText("Game Over", xPos, yPos, textPaint);
+            canvas.drawText("Game Over: " + getBobPercentage() + "%", xPos, yPos, textPaint);
+
 
             // Unregister the sensor listener
             mSensorManager.unregisterListener(this);
+
+            if(!calledGameOverRunnable && gameOverRunnable != null) {
+                calledGameOverRunnable = true;
+                gameOverRunnable.run();
+            }
         } else {
 
             textPaint.setColor(Color.WHITE);
             textPaint.setAlpha(255);
             textPaint.setTextAlign(Paint.Align.RIGHT);
             textPaint.setTypeface(Typeface.SANS_SERIF);
-            textPaint.setTextSize(18);
+            textPaint.setTextSize(22);
 
-            canvas.drawText("Bobs Left: " + headBobs.size(), getWidth() - 20, 20, textPaint);
+            if(bobsMissed == 0) {
+                canvas.drawText("100%", getWidth() - 20, 20, textPaint);
+            } else {
+                canvas.drawText("" + getBobPercentage() + "%", getWidth() - 20, 20, textPaint);
+            }
 
-            p.setStrokeWidth(10);
-            p.setColor(Color.RED);
-            canvas.drawLine(128, 0, 128, getHeight(), p);
+            textPaint.setColor(Color.RED);
+            textPaint.setAlpha(255);
+            textPaint.setTextAlign(Paint.Align.LEFT);
+            textPaint.setTypeface(Typeface.SANS_SERIF);
+            textPaint.setTextSize(30);
+            canvas.drawText(gameFeedbackString.text, 145 , 20, textPaint);
+
+            if(shouldDrawLine) {
+                p.setStrokeWidth(10);
+                p.setColor(Color.RED);
+                canvas.drawLine(128, 0, 128, getHeight(), p);
+            }
         }
     }
 

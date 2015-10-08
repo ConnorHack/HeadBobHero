@@ -18,30 +18,42 @@ public class PlayActivity extends Activity {
         setContentView(R.layout.activity_play);
 
 
-        Handler h = new Handler();
-        h.postDelayed(new Runnable() {
+        Handler h1 = new Handler();
+        Handler h2 = new Handler();
+        h1.postDelayed(new Runnable() {
             @Override
             public void run() {
                 initGfx();
             }
         }, 1000);
+
+        h2.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                playMusic();
+            }
+        }, 2850);
     }
 
     private Handler frame = new Handler();
 
     //the context supplied "getApplicationContext" may not be correct but works
     public void playMusic(){
-        MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
+        final MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
+        mediaPlayer.seekTo(36000);
         mediaPlayer.start();
-        //need some way to "wait" here while song plays, media player must be closed after
-        //or it will continue to use resources
-        mediaPlayer.release();
-        mediaPlayer = null;
+        ((GameBoard)findViewById(R.id.the_canvas)).setGameOverRunnable(new Runnable() {
+            @Override
+            public void run() {
+                mediaPlayer.release();
+            }
+        });
     }
 
     synchronized public void initGfx() {
         frame.removeCallbacks(frameUpdate);
         frame.postDelayed(frameUpdate, FRAME_RATE);
+
     }
 
     @Override

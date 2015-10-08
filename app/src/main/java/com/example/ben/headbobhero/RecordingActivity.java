@@ -6,6 +6,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -56,6 +57,9 @@ public class RecordingActivity extends Activity implements SensorEventListener {
 
     private long lastOffset;
 
+    private MediaPlayer mediaPlayer;
+
+
     private class BobRecording {
         public long currentOffset;
     }
@@ -77,6 +81,11 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         frame.removeCallbacks(frameUpdate);
         frame.postDelayed(frameUpdate, FRAME_RATE);
 
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
+        mediaPlayer.seekTo(36000);
+        mediaPlayer.start();
+        GameBoard.headBobs.clear();
+
         //TODO setContentView(R.layout.*****)
     }
 
@@ -86,11 +95,13 @@ public class RecordingActivity extends Activity implements SensorEventListener {
 
         // Unregister the sensor listener
         mSensorManager.unregisterListener(this);
+        mediaPlayer.pause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        mediaPlayer.start();
 
         // Register the sensor listener with the specified rate
         mSensorManager.registerListener(this, mSensorGravity, RATE);
@@ -133,6 +144,9 @@ public class RecordingActivity extends Activity implements SensorEventListener {
                 lastBobTime = now;*/
 
                 long offset = bobRecordingState.currentOffset;
+                if(offset < 120) {
+                    return;
+                }
 
                 //if(offset + 500 < lastOffset) {
                 //    return;
