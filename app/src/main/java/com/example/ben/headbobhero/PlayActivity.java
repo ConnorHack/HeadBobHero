@@ -1,6 +1,7 @@
 package com.example.ben.headbobhero;
 
 import android.app.Activity;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
@@ -32,6 +33,16 @@ public class PlayActivity extends Activity {
     }
 
     private Handler frame = new Handler();
+
+    //the context supplied "getApplicationContext" may not be correct but works
+    public void playMusic(){
+        MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
+        mediaPlayer.start();
+        //need some way to "wait" here while song plays, media player must be closed after
+        //or it will continue to use resources
+        mediaPlayer.release();
+        mediaPlayer = null;
+    }
 
     synchronized public void initGfx() {
         frame.removeCallbacks(frameUpdate);

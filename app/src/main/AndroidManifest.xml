@@ -21,7 +21,15 @@
         <activity
             android:name=".PlayActivity"
             android:label="@string/title_activity_play"
-            android:theme="@android:style/Theme.NoTitleBar">
+            android:theme="@android:style/Theme.NoTitleBar" >
+        </activity>
+        <activity
+            android:name=".SongActivity"
+            android:label="@string/title_activity_song_activiy" >
+        </activity>
+        <activity
+            android:name=".ImportActivity"
+            android:label="@string/title_activity_import" >
         </activity>
     </application>
 

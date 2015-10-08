@@ -1,5 +1,9 @@
 package com.example.ben.headbobhero;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -21,7 +25,7 @@ public class RegisteredSong {
         this.difficulty = difficulty;
         this.bobPattern = bobs;
     }
-
+    public RegisteredSong(){}
     public void addBobToPattern(HeadBob bob)
     {
         this.bobPattern.add(bob);
@@ -36,7 +40,11 @@ public class RegisteredSong {
     {
         this.bobPattern.clear();
     }
-    
+
+    public void setSongPath(String path)
+    {
+        this.songPath = path;
+    }
     public String getSongPath()
     {
         return this.songPath;
@@ -45,6 +53,10 @@ public class RegisteredSong {
     public String getSongName()
     {
         return this.songName;
+    }
+    public void setSongName(String name)
+    {
+        this.songName = name;
     }
 
     public int getDifficulty()
@@ -56,3 +68,4 @@ public class RegisteredSong {
         this.difficulty = diff;
     }
 }
+
