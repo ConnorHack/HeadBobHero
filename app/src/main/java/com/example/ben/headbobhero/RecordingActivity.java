@@ -84,7 +84,7 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
         mediaPlayer.seekTo(36000);
         mediaPlayer.start();
-        GameBoard.headBobs.clear();
+        GameBoard.recordedHeadBobs.clear();
 
         //TODO setContentView(R.layout.*****)
     }
@@ -154,17 +154,17 @@ public class RecordingActivity extends Activity implements SensorEventListener {
                 //lastOffset = offset;
                 if (!mRegisteringBob) {
                     if (mGravity[0] < HeadBob.THRESHOLD_BOB_RIGHT) {
-                        GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.RIGHT));
+                        GameBoard.recordedHeadBobs.add(new HeadBob(offset, HeadBobDirection.RIGHT));
                         System.out.println(offset + " RIGHT");
                         mRegisteringBob = true;
                         mCurrentBob = HeadBobDirection.RIGHT;
                     } else if (mGravity[0] > HeadBob.THRESHOLD_BOB_LEFT) {
-                        GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.LEFT));
+                        GameBoard.recordedHeadBobs.add(new HeadBob(offset, HeadBobDirection.LEFT));
                         System.out.println(offset + " LEFT");
                         mRegisteringBob = true;
                         mCurrentBob = HeadBobDirection.LEFT;
                     } else if (mGravity[1] < HeadBob.THRESHOLD_BOB_DOWN) {
-                        GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.DOWN));
+                        GameBoard.recordedHeadBobs.add(new HeadBob(offset, HeadBobDirection.DOWN));
                         System.out.println(offset + " DOWN");
                         mRegisteringBob = true;
                         mCurrentBob = HeadBobDirection.DOWN;

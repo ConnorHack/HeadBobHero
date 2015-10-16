@@ -28,6 +28,8 @@ public class GameBoard extends View implements SensorEventListener {
     boolean hasInitializedBobs = false;
     public static List<HeadBob> headBobs = new ArrayList<HeadBob>();
 
+    public static List<HeadBob> recordedHeadBobs = new ArrayList<HeadBob>();
+
     private Runnable gameOverRunnable = null;
     private Boolean calledGameOverRunnable = false;
 
@@ -105,7 +107,8 @@ public class GameBoard extends View implements SensorEventListener {
 
     private void initializeHeadBobs() {
 
-        if (headBobs.size() == 0) {
+        headBobs.clear();
+        if (recordedHeadBobs.size() == 0) {
             headBobs = new ArrayList<HeadBob>();
             for (int i = 0; i < 10; i++) {
                 Random r = new Random();
@@ -126,6 +129,10 @@ public class GameBoard extends View implements SensorEventListener {
                 }
 
                 headBobs.add(new HeadBob(i * 128, direction));
+            }
+        } else {
+            for(HeadBob headBob: recordedHeadBobs) {
+                headBobs.add(new HeadBob(headBob.offset, headBob.direction));
             }
         }
     }
