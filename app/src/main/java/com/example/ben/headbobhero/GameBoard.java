@@ -206,6 +206,7 @@ public class GameBoard extends View implements SensorEventListener {
                 long bobOffset = bob.offset + getWidth();
 
                 if (bobOffset > -128 && bobOffset < getWidth()) {
+
                     switch (bob.direction) {
                         case DOWN:
                             canvas.drawBitmap(bm_bob_down, bobOffset, bobYPos, null);

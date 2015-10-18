@@ -10,7 +10,7 @@ import android.view.MenuItem;
 public class PlayActivity extends Activity {
 
     //Divide the frame by 1000 to calculate how many times per second the screen will update.
-    private static final int FRAME_RATE = 20; //50 frames per second
+    public static final int FRAME_RATE = 20; //50 frames per second
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +53,6 @@ public class PlayActivity extends Activity {
     synchronized public void initGfx() {
         frame.removeCallbacks(frameUpdate);
         frame.postDelayed(frameUpdate, FRAME_RATE);
-
     }
 
     @Override
