@@ -43,6 +43,8 @@ public class RecordingActivity extends Activity implements SensorEventListener {
     // Rate at which to collect values from sensors
     private static int RATE = SensorManager.SENSOR_DELAY_FASTEST;
 
+    GameBoardRecording recordingGameBoard ;
+
     // Globals needed to collect values from device's sensors
     private SensorManager mSensorManager;
     private Sensor mSensorGravity;
@@ -52,21 +54,20 @@ public class RecordingActivity extends Activity implements SensorEventListener {
     private HeadBobDirection mCurrentBob;
 
     private long timeStart;
-
     private long lastBobTime;
-
     private long lastOffset;
 
     private MediaPlayer mediaPlayer;
 
+    private final BobRecording bobRecordingState = new BobRecording();
+    private boolean mRegisteringBob;
+
+    private static final int FRAME_RATE = 20; //50 frames per second
+    private Handler frame = new Handler();
 
     private class BobRecording {
         public long currentOffset;
     }
-
-    private final BobRecording bobRecordingState = new BobRecording();
-
-    private boolean mRegisteringBob;
 
     /////////////////////////////////////////////////////
     // Below methods are for the extension of Activity //
@@ -78,15 +79,31 @@ public class RecordingActivity extends Activity implements SensorEventListener {
 
         // Initialize any globals that need to be initialized
         initGlobals();
-        frame.removeCallbacks(frameUpdate);
-        frame.postDelayed(frameUpdate, FRAME_RATE);
 
-        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
-        mediaPlayer.seekTo(36000);
-        mediaPlayer.start();
-        GameBoard.headBobs.clear();
+        setContentView(R.layout.activity_record);
+    }
 
-        //TODO setContentView(R.layout.*****)
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        final GameBoardRecording finalRecordingGameBoard = ((GameBoardRecording)findViewById(R.id.canvas_recording));
+
+        Log.i(DEBUG, "" + (finalRecordingGameBoard == null));
+
+        mediaPlayer.setOnCompletionListener(
+                new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        finalRecordingGameBoard.endSong();
+                        if (mp.isPlaying()) {
+                            mp.stop();
+                        }
+                    }
+                }
+        );
+
+        recordingGameBoard = finalRecordingGameBoard ;
     }
 
     @Override
@@ -96,7 +113,7 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         // Unregister the sensor listener
         mSensorManager.unregisterListener(this);
         mediaPlayer.pause();
-    }
+}
 
     @Override
     protected void onResume() {
@@ -154,20 +171,11 @@ public class RecordingActivity extends Activity implements SensorEventListener {
                 //lastOffset = offset;
                 if (!mRegisteringBob) {
                     if (mGravity[0] < HeadBob.THRESHOLD_BOB_RIGHT) {
-                        GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.RIGHT));
-                        System.out.println(offset + " RIGHT");
-                        mRegisteringBob = true;
-                        mCurrentBob = HeadBobDirection.RIGHT;
+                        registerHeadBob(HeadBobDirection.RIGHT, offset);
                     } else if (mGravity[0] > HeadBob.THRESHOLD_BOB_LEFT) {
-                        GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.LEFT));
-                        System.out.println(offset + " LEFT");
-                        mRegisteringBob = true;
-                        mCurrentBob = HeadBobDirection.LEFT;
+                        registerHeadBob(HeadBobDirection.LEFT, offset);
                     } else if (mGravity[1] < HeadBob.THRESHOLD_BOB_DOWN) {
-                        GameBoard.headBobs.add(new HeadBob(offset, HeadBobDirection.DOWN));
-                        System.out.println(offset + " DOWN");
-                        mRegisteringBob = true;
-                        mCurrentBob = HeadBobDirection.DOWN;
+                        registerHeadBob(HeadBobDirection.DOWN, offset);
                     }
                 } else {
                     switch (mCurrentBob) {
@@ -175,21 +183,18 @@ public class RecordingActivity extends Activity implements SensorEventListener {
                             if (mGravity[0] > HeadBob.THRESHOLD_BOB_RIGHT) {
                                 mRegisteringBob = false;
                                 mCurrentBob = null;
-                                System.out.println(offset + " REST from RIGHT");
                             }
                             break;
                         case LEFT:
                             if (mGravity[0] < HeadBob.THRESHOLD_BOB_LEFT) {
                                 mRegisteringBob = false;
                                 mCurrentBob = null;
-                                System.out.println(offset + " REST from LEFT");
                             }
                             break;
                         case DOWN:
                             if (mGravity[1] > HeadBob.THRESHOLD_BOB_DOWN) {
                                 mRegisteringBob = false;
                                 mCurrentBob = null;
-                                System.out.println(offset + " REST from DOWN");
                             }
                             break;
                         default:
@@ -228,6 +233,32 @@ public class RecordingActivity extends Activity implements SensorEventListener {
 
         // Initially do not register a head-bob
         mRegisteringBob = false;
+
+        // Set up the media player to play music
+        frame.removeCallbacks(frameUpdate);
+        frame.postDelayed(frameUpdate, FRAME_RATE);
+
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
+        mediaPlayer.seekTo(36000);
+        mediaPlayer.start();
+
+        GameBoard.recordedHeadBobs.clear();
+    }
+
+    /**
+     * <h2></h2>Method used to register a head bob has been recorded </h2>
+     * @param direction - The HeadBobDirection that has been detected
+     * @param offset - The offset to place the Head Bob
+     */
+    public void registerHeadBob(HeadBobDirection direction, long offset) {
+        HeadBob headBob = new HeadBob(offset, direction);
+
+        // TODO Temporary fix; will be replaced when we have actual instances of songs
+        GameBoard.recordedHeadBobs.add(headBob);
+
+        recordingGameBoard.addHeadBob(headBob);
+        mRegisteringBob = true;
+        mCurrentBob = direction;
     }
 
     /**
@@ -255,10 +286,6 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         return output;
     }
 
-    private static final int FRAME_RATE = 20; //50 frames per second
-
-    private Handler frame = new Handler();
-
 
     private Runnable frameUpdate = new Runnable() {
         @Override
@@ -267,6 +294,7 @@ public class RecordingActivity extends Activity implements SensorEventListener {
             //make any updates to on screen objects here
             //then invoke the on draw by invalidating the canvas
             bobRecordingState.currentOffset += 4;
+            ((GameBoardRecording)findViewById(R.id.canvas_recording)).invalidate();
             frame.postDelayed(frameUpdate, FRAME_RATE);
         }
     };
