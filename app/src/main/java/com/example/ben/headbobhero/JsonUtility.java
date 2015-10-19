@@ -67,11 +67,11 @@ public class JsonUtility {
 
     //TODO: Temp array of the JSON strings
 
-    public static void writeJSONToFile(String json)
+    public static void writeJSONToFile(String json, String songName)
     {
         try
         {
-            FileWriter writer = new FileWriter("/songs/aSong.json");
+            FileWriter writer = new FileWriter("/songs/" + songName + ".json");
             writer.write(json);
             writer.close();
         }

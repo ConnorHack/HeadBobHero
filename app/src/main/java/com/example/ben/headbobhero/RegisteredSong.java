@@ -5,6 +5,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by daniellegonzalez on 10/6/15.
@@ -29,6 +30,14 @@ public class RegisteredSong {
     public void addBobToPattern(HeadBob bob)
     {
         this.bobPattern.add(bob);
+    }
+
+    public void addBobCollectionToPattern(List<HeadBob> bobCollection)
+    {
+        for(int i = 0; i < bobCollection.size(); i++)
+        {
+            addBobToPattern(bobCollection.get(i));
+        }
     }
 
     public ArrayList<HeadBob> getBobPattern()
