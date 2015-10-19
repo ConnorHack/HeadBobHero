@@ -11,6 +11,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -26,6 +27,10 @@ public class GameBoard extends View implements SensorEventListener {
     private Paint textPaint;
 
     boolean hasInitializedBobs = false;
+    private boolean startedGame = false;
+    private CountDownTimer countdownToStart = null;
+    private int secondsLeftBeforeStart;
+
     public static List<HeadBob> headBobs = new ArrayList<HeadBob>();
 
     public static List<HeadBob> recordedHeadBobs = new ArrayList<HeadBob>();
@@ -156,20 +161,42 @@ public class GameBoard extends View implements SensorEventListener {
         if (!hasInitializedBobs) {
             initializeHeadBobs();
 
-            textPaint.setColor(Color.WHITE);
-            textPaint.setAlpha(255);
-            textPaint.setTextAlign(Paint.Align.CENTER);
-            textPaint.setTypeface(Typeface.SANS_SERIF);
-            textPaint.setTextSize(48);
-
-
-            int xPos = (canvas.getWidth() / 2);
-            int yPos = (int) ((canvas.getHeight() / 2) - ((textPaint.descent() + textPaint.ascent()) / 2));
-            canvas.drawText("Ready...", xPos, yPos, textPaint);
-
             hasInitializedBobs = true;
         }
-        
+
+        if (!startedGame) {
+
+            if (countdownToStart == null) {
+                countdownToStart = new CountDownTimer(5000, 1000) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        secondsLeftBeforeStart = (int)Math.floor(millisUntilFinished/1000);
+                        invalidate();
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        secondsLeftBeforeStart = 0;
+                        startedGame = true;
+                        invalidate();
+                    }
+                };
+                countdownToStart.start();
+            } else {
+                textPaint.setColor(Color.WHITE);
+                textPaint.setAlpha(255);
+                textPaint.setTextAlign(Paint.Align.CENTER);
+                textPaint.setTypeface(Typeface.SANS_SERIF);
+                textPaint.setTextSize(48);
+
+
+                int xPos = (canvas.getWidth() / 2);
+                int yPos = (int) ((canvas.getHeight() / 2) - ((textPaint.descent() + textPaint.ascent()) / 2));
+                canvas.drawText("Ready... " + Integer.toString(secondsLeftBeforeStart), xPos, yPos, textPaint);
+            }
+            return;
+        }
+
         if (headBobs.size() == 0 || bobsMissedSinceLastMatch > ALLOWED_MISSED) {
             // Game over
             textPaint.setColor(Color.WHITE);
@@ -177,7 +204,6 @@ public class GameBoard extends View implements SensorEventListener {
             textPaint.setTextAlign(Paint.Align.CENTER);
             textPaint.setTypeface(Typeface.SANS_SERIF);
             textPaint.setTextSize(48);
-
 
             int xPos = (canvas.getWidth() / 2);
             int yPos = (int) ((canvas.getHeight() / 2) - ((textPaint.descent() + textPaint.ascent()) / 2));
