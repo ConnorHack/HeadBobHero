@@ -1,16 +1,56 @@
 package com.example.ben.headbobhero;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.database.Cursor;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ImportActivity extends Activity {
+    Map<Long, Integer> songMap = new HashMap<Long, Integer>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_import);
+        findMusic();
+    }
+
+    public void findMusic() {
+        ContentResolver contentResolver = getContentResolver();
+        Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor cursor = contentResolver.query(uri, null, null, null, null);
+        if (cursor == null) {
+            // query failed, handle error.
+            //this should have a popup that there was an issue trying trying to get music
+        } else if (!cursor.moveToFirst()) {
+            // This should have a popup that no music was found on the device
+        } else {
+            int titleColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
+            int idColumn = cursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
+            do {
+                long thisId = cursor.getLong(idColumn);
+                String thisTitle = cursor.getString(titleColumn);
+                // below is processing the found audio
+                if(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC) != 0){
+                    songMap.put(thisId, titleColumn);
+                    System.out.println(songMap + "joely");
+                }
+            } while (cursor.moveToNext());
+        }
     }
 
     @Override
