@@ -3,10 +3,10 @@
     android:layout_width="match_parent" android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/dist"
+        android:id="@+id/song"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textSize="8dp"
-        android:textStyle="italic"/>
+        android:textSize="18sp"
+        android:textStyle="bold"/>
 
 </LinearLayout>
