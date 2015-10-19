@@ -52,6 +52,10 @@ public class ImportActivity extends Activity {
         return songMap;
     }
 
+    public Map getMusicMap(){
+        return findMusic();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
