@@ -5,9 +5,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.Gson;
 
 /**
@@ -45,27 +49,70 @@ public class JsonUtility {
         }
         return null;
     }
-
-    public static RegisteredSong ParseJSON(String filePath, String JSON)
+    // load .json file & return string
+    public static String loadJSON(String filePath)
     {
-        Gson gson = new Gson();
+        String result = null;
         try
         {
-            String json = "";
+            BufferedReader buff = new BufferedReader(new FileReader(filePath));
+            StringBuilder sb = new StringBuilder();
+            String line = buff.readLine();
+            while (line != null) {
+                sb.append(line);
+                line = buff.readLine();
+            }
+            result = sb.toString();
+
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    // parse JSON into RegisteredSong
+    public static RegisteredSong ParseJSON(String JSON)
+    {
+        Gson gson = new Gson();
+        RegisteredSong obj = gson.fromJson(JSON, RegisteredSong.class);
+        return obj;
+    }
+
+
+    public static List<RegisteredSong> getAllSongs(String directoryPath)
+    {
+        List<RegisteredSong> songs = new ArrayList<RegisteredSong>();
+
+        File f = new File(directoryPath);
+        File[] files = f.listFiles();
+        int fileCount = files.length;
+        if (files != null)
+        {
+            for (int i = 0; i < files.length; i++) {
+                String filePath = files[i].getAbsolutePath();
+                RegisteredSong aSong = loadAndParseJSON(filePath);
+                songs.add(aSong);
+            }
+        }
+        return songs;
+    }
+
+
+    public static RegisteredSong loadAndParseJSON(String filePath)
+    {
+        try
+        {
+            Gson gson = new Gson();
             BufferedReader buff = new BufferedReader(new FileReader(filePath));
             RegisteredSong obj = gson.fromJson(buff, RegisteredSong.class);
             return obj;
-
-        }
-        catch(IOException eee)
+        }catch(Exception e)
         {
-            eee.printStackTrace();
+            e.printStackTrace();
         }
         return null;
     }
 
-
-    //TODO: Temp array of the JSON strings
 
     public static void writeJSONToFile(String json, String songName)
     {
