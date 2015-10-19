@@ -7,7 +7,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -45,9 +44,9 @@ public class MainActivity extends Activity {
 
         initList();
         ListView lv = (ListView) findViewById(R.id.listView);
-        ArrayAdapter<String> simpleAdpt = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, android.R.id.text1, songList);
+        SongAdapter songAdpt = new SongAdapter(this,android.R.id.text1, songList);
 
-        lv.setAdapter(simpleAdpt);
+        lv.setAdapter(songAdpt);
         // React to user clicks on item
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -63,30 +62,10 @@ public class MainActivity extends Activity {
 
     }
 
-        /*findViewById(R.id.play_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent playIntent = new Intent(MainActivity.this, PlayActivity.class);
-                playIntent.setAction("play_headbobs");
-                startActivity(playIntent);
-            }
-        });
 
-        findViewById(R.id.record_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent recordingIntent = new Intent(MainActivity.this, RecordingActivity.class);
-                recordingIntent.setAction("record_headbobs");
-                startActivity(recordingIntent);
-            }
-        });*/
-
-
-    ArrayList<String> songList= new ArrayList<String>();
-    private void initList()
-    {
-        songList.add("song1");
-        songList.add("song2");
+    ArrayList<RegisteredSong> songList= new ArrayList<RegisteredSong>();
+    private void initList() {
+        songList.add(new RegisteredSong("All Star", null, 1, null));
+        songList.add(new RegisteredSong("Get Swifty", null, 1, null));
     }
-
 }
