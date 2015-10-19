@@ -19,17 +19,16 @@ import java.util.List;
 import java.util.Map;
 
 public class ImportActivity extends Activity {
-    Map<Long, Integer> songMap = new HashMap<Long, Integer>();
+    Map<Long, String> songMap = new HashMap<Long, String>();
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_import);
-        findMusic();
     }
 
-    public void findMusic() {
+    public Map findMusic() {
         ContentResolver contentResolver = getContentResolver();
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Cursor cursor = contentResolver.query(uri, null, null, null, null);
@@ -46,11 +45,11 @@ public class ImportActivity extends Activity {
                 String thisTitle = cursor.getString(titleColumn);
                 // below is processing the found audio
                 if(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC) != 0){
-                    songMap.put(thisId, titleColumn);
-                    System.out.println(songMap + "joely");
+                    songMap.put(thisId, thisTitle);
                 }
             } while (cursor.moveToNext());
         }
+        return songMap;
     }
 
     @Override
