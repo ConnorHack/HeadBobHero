@@ -31,7 +31,7 @@ public class RegisteredSong {
     {
         this.bobPattern.add(bob);
     }
-    
+
     public void addBobCollectionToPattern(List<HeadBob> bobCollection)
     {
         for(int i = 0; i < bobCollection.size(); i++)
