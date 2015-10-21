@@ -10,9 +10,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-/**
- * Created by Carlos on 10/18/2015.
- */
 public class SongAdapter extends ArrayAdapter<RegisteredSong> {
 
     public SongAdapter(Context context, int textViewResourceId) {
