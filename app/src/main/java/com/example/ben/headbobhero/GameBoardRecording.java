@@ -7,6 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.os.CountDownTimer;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -31,6 +32,10 @@ public class GameBoardRecording extends View {
     private final Bitmap bm_bob_down;
     private final Bitmap bm_bob_left;
     private final Bitmap bm_bob_right;
+
+    private boolean startedRecording = false;
+    private CountDownTimer countdownToStart = null;
+    private int secondsLeftBeforeStart = 5;
 
     public GameBoardRecording(Context context, AttributeSet aSet) {
         super(context, aSet);
@@ -70,6 +75,37 @@ public class GameBoardRecording extends View {
         p.setStrokeWidth(1);
         canvas.drawRect(0, 0, getWidth(), getHeight(), p);
 
+        if (!startedRecording) {
+
+            if (countdownToStart == null) {
+                countdownToStart = new CountDownTimer(5000, 500) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        secondsLeftBeforeStart = (int)Math.ceil(millisUntilFinished / 1000) + 1;
+                    }
+
+                    @Override
+                    public void onFinish() {
+                        secondsLeftBeforeStart = 1;
+                        startedRecording = true;
+                    }
+                };
+                countdownToStart.start();
+            } else {
+                textPaint.setColor(Color.WHITE);
+                textPaint.setAlpha(255);
+                textPaint.setTextAlign(Paint.Align.CENTER);
+                textPaint.setTypeface(Typeface.SANS_SERIF);
+                textPaint.setTextSize(48);
+
+
+                int xPos = (canvas.getWidth() / 2);
+                int yPos = (int) ((canvas.getHeight() / 2) - ((textPaint.descent() + textPaint.ascent()) / 2));
+                canvas.drawText("Ready... " + Integer.toString(secondsLeftBeforeStart), xPos, yPos, textPaint);
+            }
+            return;
+        }
+
         if (hasSongEnded) {
             // Game over
             textPaint.setColor(Color.WHITE);
@@ -85,7 +121,7 @@ public class GameBoardRecording extends View {
         } else {
             // Song hasn't ended!
             Iterator<HeadBob> headBobIterator = headBobs.iterator();
-            int bobYPos = canvas.getHeight() / 2 - 64;
+            int bobYPos = canvas.getHeight() / 2 - 50;
 
             while (headBobIterator.hasNext()) {
                 HeadBob bob = headBobIterator.next();

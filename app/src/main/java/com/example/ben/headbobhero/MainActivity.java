@@ -9,9 +9,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
+
+    static final int ACTIVITY_RESULT_DONE = 1;
+
+    private SongAdapter songAdpt;
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -44,7 +49,8 @@ public class MainActivity extends Activity {
 
         initList();
         ListView lv = (ListView) findViewById(R.id.listView);
-        SongAdapter songAdpt = new SongAdapter(this,android.R.id.text1, songList);
+        songAdpt = new SongAdapter(this,android.R.id.text1, songList);
+
 
         lv.setAdapter(songAdpt);
         // React to user clicks on item
@@ -52,20 +58,35 @@ public class MainActivity extends Activity {
 
             public void onItemClick(AdapterView<?> parentAdapter, View view, int position,
                                     long id) {
+                RegisteredSong clickedSong = songList.get(position);
 
                 Intent playIntent = new Intent(MainActivity.this, SongActivity.class);
+                playIntent.putExtra("registered_song", JsonUtility.toJSON(clickedSong));
                 playIntent.setAction("song_menu");
-                startActivity(playIntent);
+                startActivityForResult(playIntent, ACTIVITY_RESULT_DONE);
 
             }
         });
-
     }
 
 
     ArrayList<RegisteredSong> songList= new ArrayList<RegisteredSong>();
     private void initList() {
-        songList.add(new RegisteredSong("All Star", null, 1, null));
-        songList.add(new RegisteredSong("Get Swifty", null, 1, null));
+        songList.clear();
+        songList.addAll(JsonUtility.getAllSongs(new File(getFilesDir().getPath())));
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch(requestCode) {
+            case (ACTIVITY_RESULT_DONE) : {
+                if (resultCode == Activity.RESULT_OK) {
+                    initList();
+                    songAdpt.notifyDataSetChanged();
+                }
+                break;
+            }
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.example.ben.headbobhero;
 
 import android.content.Context;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ public class SongAdapter extends ArrayAdapter<RegisteredSong> {
 
         if (p != null) {
             TextView tt1 = (TextView) v.findViewById(R.id.song);
+            tt1.setTextSize(TypedValue.COMPLEX_UNIT_PX, 25);
 
             if (tt1 != null) {
                 tt1.setText(p.getSongName());

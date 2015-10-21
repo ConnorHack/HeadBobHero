@@ -4,6 +4,7 @@
     tools:context="com.example.ben.headbobhero.PlayActivity">
 
     <com.example.ben.headbobhero.GameBoardRecording
+        android:keepScreenOn="true"
         android:id="@+id/canvas_recording"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

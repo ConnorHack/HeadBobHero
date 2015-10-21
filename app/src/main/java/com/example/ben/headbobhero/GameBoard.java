@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -53,7 +54,10 @@ public class GameBoard extends View implements SensorEventListener {
     private float mGravity[];
 
     // Defines the headbob the system is waiting to receive
-    private HeadBobDirection scanForHeadBob = null;
+    private HeadBob scanForHeadBob = null;
+
+    private HeadBob scanForHeadBobOverlap = null;
+
     // Defines if we have received a correct head-bob
     private Boolean hasScannedCorrectBob = false;
     private boolean scanning = false;
@@ -70,9 +74,12 @@ public class GameBoard extends View implements SensorEventListener {
 
     private final int ALLOWED_MISSED = 10;
 
+    private HashSet<HeadBob> currentMissedBobs = new HashSet<HeadBob>();
+
 
     private class GameFeedbackString {
         public String text = "";
+        public int color = Color.RED;
     }
     private final GameFeedbackString gameFeedbackString = new GameFeedbackString();
 
@@ -108,37 +115,18 @@ public class GameBoard extends View implements SensorEventListener {
         }
     }
 
+    public void setHeadBobs(List<HeadBob> headBobs) {
+        GameBoard.recordedHeadBobs = headBobs;
+    }
+
     public void setGameOverRunnable(Runnable runnable) {
         gameOverRunnable = runnable;
     }
 
 
     private void initializeHeadBobs() {
-
         headBobs.clear();
-        if (recordedHeadBobs.size() == 0) {
-            headBobs = new ArrayList<HeadBob>();
-            for (int i = 0; i < 10; i++) {
-                Random r = new Random();
-
-                int directionInt = r.nextInt(3);
-                HeadBobDirection direction = null;
-
-                switch (directionInt) {
-                    case 0:
-                        direction = HeadBobDirection.DOWN;
-                        break;
-                    case 1:
-                        direction = HeadBobDirection.LEFT;
-                        break;
-                    case 2:
-                        direction = HeadBobDirection.RIGHT;
-                        break;
-                }
-
-                headBobs.add(new HeadBob(i * 128, direction));
-            }
-        } else {
+        if (recordedHeadBobs.size() != 0) {
             for(HeadBob headBob: recordedHeadBobs) {
                 headBobs.add(new HeadBob(headBob.offset, headBob.direction));
             }
@@ -167,18 +155,16 @@ public class GameBoard extends View implements SensorEventListener {
         if (!startedGame) {
 
             if (countdownToStart == null) {
-                countdownToStart = new CountDownTimer(5000, 1000) {
+                countdownToStart = new CountDownTimer(5000, 500) {
                     @Override
                     public void onTick(long millisUntilFinished) {
-                        secondsLeftBeforeStart = (int)Math.floor(millisUntilFinished/1000);
-                        invalidate();
+                        secondsLeftBeforeStart = (int)Math.ceil(millisUntilFinished / 1000) + 1;
                     }
 
                     @Override
                     public void onFinish() {
-                        secondsLeftBeforeStart = 0;
+                        secondsLeftBeforeStart = 1;
                         startedGame = true;
-                        invalidate();
                     }
                 };
                 countdownToStart.start();
@@ -225,11 +211,12 @@ public class GameBoard extends View implements SensorEventListener {
         } else {
 
             Iterator<HeadBob> headBobIterator = headBobs.iterator();
-            int bobYPos = canvas.getHeight() / 2 - 50;
+            int bobYPos = canvas.getHeight() / 2 - 45;
 
+            long bobOffset = 0;
             while (headBobIterator.hasNext()) {
                 HeadBob bob = headBobIterator.next();
-                long bobOffset = bob.offset + getWidth();
+                bobOffset = bob.offset + getWidth();
 
                 if (bobOffset > -128 && bobOffset < getWidth()) {
 
@@ -248,31 +235,51 @@ public class GameBoard extends View implements SensorEventListener {
                 // Have to split the if statements to allow for this one and the
                 // one before it to both run (this one didn't get run because it
                 // falls in between the value range of the previous if statement)
-                if (bobOffset > 0 && bobOffset < 128 && scanForHeadBob == null) {
-                    // Set the head-bob direction to scan for and begin scanning
-                    scanForHeadBob = bob.direction;
-                    scanning = true;
+                if (bobOffset > 0 && bobOffset < 128) {
+
+                    if(scanForHeadBob == null) {
+                        // Set the head-bob direction to scan for and begin scanning
+                        scanForHeadBob = bob;
+                        scanning = true;
+                    } else if(scanForHeadBobOverlap == null && scanForHeadBob != bob) {
+                        scanForHeadBobOverlap = bob;
+                    }
                 }
 
-                if ((bobOffset < -128 && !hasScannedCorrectBob) || (bobOffset < 128 && hasScannedCorrectBob && scanForHeadBob == bob.direction)) {
+                if (!currentMissedBobs.contains(bob) &&(bobOffset < 0 && !hasScannedCorrectBob || (bobOffset < 128 && hasScannedCorrectBob && scanForHeadBob == bob) || (bobOffset > 0 && bobOffset < 128 && scanForHeadBob != null && bob == scanForHeadBobOverlap))) {
                     if (hasScannedCorrectBob) {
-                        Log.d("play", "got bob: " + scanForHeadBob);
+                        //Log.d("play", "got bob: " + scanForHeadBob);
                         gameFeedbackString.text = bobMatchStrings[random.nextInt(bobMatchStrings.length)];
+                        gameFeedbackString.color = Color.GREEN;
                         bobsMatched++;
                         bobsMissedSinceLastMatch = 0;
+                        headBobIterator.remove();
                     } else {
-                        Log.d("play", "did not get bob " + bob.direction
-                                + ": got " + scanForHeadBob + " instead");
+                        //Log.d("play", "did not get bob " + bob.direction
+                        //       + ": got " + scanForHeadBob + " instead");
 
                         gameFeedbackString.text = bobFailStrings[random.nextInt(bobFailStrings.length)];
+                        gameFeedbackString.color = Color.RED;
                         bobsMissed++;
                         bobsMissedSinceLastMatch++;
+                        currentMissedBobs.add(bob);
                     }
                     gameFeedbackRemoveHandler.removeCallbacks(gameFeedbackRemoveRunnable);
                     gameFeedbackRemoveHandler.postDelayed(gameFeedbackRemoveRunnable, 1000);
 
-                    scanForHeadBob = null;
+                    if(scanForHeadBobOverlap != null) {
+                        scanForHeadBob = scanForHeadBobOverlap;
+                        scanForHeadBobOverlap = null;
+                    } else {
+                        scanForHeadBob = null;
+                    }
+
                     hasScannedCorrectBob = false;
+
+                } else if(bobOffset < -128) {
+                    if(currentMissedBobs.contains(bob)) {
+                        currentMissedBobs.remove(bob);
+                    }
                     headBobIterator.remove();
                 }
 
@@ -292,6 +299,22 @@ public class GameBoard extends View implements SensorEventListener {
             }
 
             textPaint.setColor(Color.RED);
+            textPaint.setAlpha(255);
+            textPaint.setTextAlign(Paint.Align.RIGHT);
+            textPaint.setTypeface(Typeface.SANS_SERIF);
+            textPaint.setTextSize(25);
+
+            canvas.drawText("Life:", getWidth() - 103, getHeight() - 3, textPaint);
+
+
+            p.setColor(Color.RED);
+            canvas.drawRect(getWidth() - 100, getHeight() - 25, getWidth(), getHeight(), p);
+            p.setColor(Color.BLACK);
+            canvas.drawRect(getWidth() - 97, getHeight() - 22, getWidth() + 3, getHeight() + 3, p);
+            p.setColor(Color.rgb(255,64,64));
+            canvas.drawRect(getWidth(), getHeight() - 22, (getWidth() - 97) + ((int) Math.floor(94 * ((float) bobsMissedSinceLastMatch / ALLOWED_MISSED))) , getHeight() + 3, p);
+
+            textPaint.setColor(gameFeedbackString.color);
             textPaint.setAlpha(255);
             textPaint.setTextAlign(Paint.Align.LEFT);
             textPaint.setTypeface(Typeface.SANS_SERIF);
@@ -324,14 +347,14 @@ public class GameBoard extends View implements SensorEventListener {
             if (scanForHeadBob != null) {
                 if (mGravity[0] < HeadBob.THRESHOLD_BOB_RIGHT) {
                     // Determine if we scanned for the correct head bob
-                    hasScannedCorrectBob = (scanForHeadBob == HeadBobDirection.RIGHT);
+                    hasScannedCorrectBob = (scanForHeadBob.direction == HeadBobDirection.RIGHT);
                     // Stop scanning since we received a head-bob
                     scanning = false;
                 } else if (mGravity[0] > HeadBob.THRESHOLD_BOB_LEFT) {
-                    hasScannedCorrectBob = (scanForHeadBob == HeadBobDirection.LEFT);
+                    hasScannedCorrectBob = (scanForHeadBob.direction == HeadBobDirection.LEFT);
                     scanning = false;
                 } else if (mGravity[1] < HeadBob.THRESHOLD_BOB_DOWN) {
-                    hasScannedCorrectBob = (scanForHeadBob == HeadBobDirection.DOWN);
+                    hasScannedCorrectBob = (scanForHeadBob.direction == HeadBobDirection.DOWN);
                     scanning = false;
                 }
             }

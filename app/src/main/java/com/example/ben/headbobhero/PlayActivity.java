@@ -1,9 +1,11 @@
 package com.example.ben.headbobhero;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -12,47 +14,63 @@ public class PlayActivity extends Activity {
     //Divide the frame by 1000 to calculate how many times per second the screen will update.
     public static final int FRAME_RATE = 20; //50 frames per second
 
+    private RegisteredSong song;
+    private Handler playMusicHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
 
+        final Intent intent = getIntent();
+        song = JsonUtility.ParseJSON(intent.getStringExtra("registered_song"));
 
-        Handler h1 = new Handler();
-        Handler h2 = new Handler();
-        h1.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                initGfx();
-            }
-        }, 1000);
+        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
 
-        h2.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                playMusic();
-            }
-        }, 2850);
+        playMusicHandler = new Handler();
+
+        playMusicHandler.postDelayed(playMusicDelay, 6850);
     }
 
+    private Runnable playMusicDelay = new Runnable() {
+        @Override
+        public void run() {
+            playMusic();
+        }
+    };
+
+    @Override
+    public void onBackPressed() {
+        if(mediaPlayer != null) {
+            mediaPlayer.release();
+        }
+        playMusicHandler.removeCallbacks(playMusicDelay);
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        ((GameBoard) findViewById(R.id.the_canvas)).setHeadBobs(song.getBobPattern());
+        frame.removeCallbacks(frameUpdate);
+        frame.postDelayed(frameUpdate, FRAME_RATE);
+    }
+
+
     private Handler frame = new Handler();
+    private MediaPlayer mediaPlayer;
 
     //the context supplied "getApplicationContext" may not be correct but works
     public void playMusic(){
-        final MediaPlayer mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
         mediaPlayer.seekTo(36000);
         mediaPlayer.start();
         ((GameBoard)findViewById(R.id.the_canvas)).setGameOverRunnable(new Runnable() {
             @Override
             public void run() {
                 mediaPlayer.release();
+                mediaPlayer = null;
             }
         });
-    }
-
-    synchronized public void initGfx() {
-        frame.removeCallbacks(frameUpdate);
-        frame.postDelayed(frameUpdate, FRAME_RATE);
     }
 
     @Override

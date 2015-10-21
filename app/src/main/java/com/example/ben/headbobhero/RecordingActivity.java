@@ -2,6 +2,7 @@ package com.example.ben.headbobhero;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -51,11 +52,22 @@ public class RecordingActivity extends Activity implements SensorEventListener {
     private float mGravity[];
 
     private boolean mIsRecording;
+    private boolean mIsPaused;
     private HeadBobDirection mCurrentBob;
 
     private long timeStart;
     private long lastBobTime;
     private long lastOffset;
+
+    private Handler recordingDelayHandler = new Handler();
+
+    private Runnable recordingDelayRunnable = new Runnable() {
+        @Override
+        public void run() {
+            mIsRecording = true;
+            mediaPlayer.start();
+        }
+    };
 
     private MediaPlayer mediaPlayer;
 
@@ -68,6 +80,8 @@ public class RecordingActivity extends Activity implements SensorEventListener {
     private class BobRecording {
         public long currentOffset;
     }
+
+    private RegisteredSong song;
 
     /////////////////////////////////////////////////////
     // Below methods are for the extension of Activity //
@@ -107,18 +121,40 @@ public class RecordingActivity extends Activity implements SensorEventListener {
     }
 
     @Override
+    public void onBackPressed() {
+        if(mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+        }
+        mediaPlayer.release();
+        mediaPlayer = null;
+        recordingDelayHandler.removeCallbacks(recordingDelayRunnable);
+        String songJson = JsonUtility.toJSON(song);
+        JsonUtility.writeJSONToFile(this, songJson, song.getSongName());
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("recorded_song", songJson);
+        setResult(Activity.RESULT_OK, resultIntent);
+        super.onBackPressed();
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
 
         // Unregister the sensor listener
         mSensorManager.unregisterListener(this);
-        mediaPlayer.pause();
-}
+        if(mIsRecording && mediaPlayer != null) {
+            mediaPlayer.pause();
+        }
+        mIsPaused = true;
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mediaPlayer.start();
+        if(mIsRecording && mediaPlayer != null) {
+            mediaPlayer.start();
+        }
+        mIsPaused = false;
 
         // Register the sensor listener with the specified rate
         mSensorManager.registerListener(this, mSensorGravity, RATE);
@@ -146,11 +182,11 @@ public class RecordingActivity extends Activity implements SensorEventListener {
     public void onSensorChanged(SensorEvent event) {
 
         // Check first to make sure we are supposed to be collecting results
-        if (mIsRecording) {
+
             if (event.sensor.getType() == Sensor.TYPE_GRAVITY) {
                 mGravity = lowPassFilter(event.values, mGravity);
             }
-
+        if (mIsRecording) {
             if (mGravity != null) {
                 //DEBUG STATEMENT: Testing certain head-bob thresholds
                 //System.out.println(mGravity[0] + " " + mGravity[1] + " " + mGravity[2]);
@@ -215,6 +251,9 @@ public class RecordingActivity extends Activity implements SensorEventListener {
      */
     public void initGlobals() {
 
+        song = JsonUtility.ParseJSON(getIntent().getStringExtra("registered_song"));
+        song.resetBobPattern();
+
         // Initialize the sensor manager, gravity sensor, and gravity vector
         mGravity = new float[3];
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -229,18 +268,19 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         }
 
         // Initially do not begin collecting results
-        mIsRecording = true;
+        mIsRecording = false;
+        mIsPaused = false;
 
         // Initially do not register a head-bob
         mRegisteringBob = false;
 
         // Set up the media player to play music
-        frame.removeCallbacks(frameUpdate);
-        frame.postDelayed(frameUpdate, FRAME_RATE);
-
         mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
         mediaPlayer.seekTo(36000);
-        mediaPlayer.start();
+
+        frame.removeCallbacks(frameUpdate);
+        frame.postDelayed(frameUpdate, FRAME_RATE);
+        recordingDelayHandler.postDelayed(recordingDelayRunnable, 5000);
 
         GameBoard.recordedHeadBobs.clear();
     }
@@ -254,7 +294,8 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         HeadBob headBob = new HeadBob(offset, direction);
 
         // TODO Temporary fix; will be replaced when we have actual instances of songs
-        GameBoard.recordedHeadBobs.add(headBob);
+        //GameBoard.recordedHeadBobs.add(headBob);
+        song.addBobToPattern(headBob);
 
         recordingGameBoard.addHeadBob(headBob);
         mRegisteringBob = true;
@@ -293,7 +334,9 @@ public class RecordingActivity extends Activity implements SensorEventListener {
             frame.removeCallbacks(frameUpdate);
             //make any updates to on screen objects here
             //then invoke the on draw by invalidating the canvas
-            bobRecordingState.currentOffset += 4;
+            if(mIsRecording && !mIsPaused) {
+                bobRecordingState.currentOffset += 4;
+            }
             ((GameBoardRecording)findViewById(R.id.canvas_recording)).invalidate();
             frame.postDelayed(frameUpdate, FRAME_RATE);
         }

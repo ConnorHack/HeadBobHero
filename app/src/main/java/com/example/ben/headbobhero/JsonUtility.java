@@ -1,11 +1,14 @@
 package com.example.ben.headbobhero;
 
+import android.content.Context;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,30 +27,8 @@ public class JsonUtility {
     // Serialize the Song data to JSON
     public static String toJSON(RegisteredSong song)
     {
-        try
-        {
-            JSONObject obj = new JSONObject();
-            obj.put("SongName", song.getSongName());
-            obj.put("SongPath", song.getSongPath());
-            obj.put("Difficulty", song.getSongPath());
-
-            JSONArray bobArray = new JSONArray();
-            for(HeadBob bob : song.getBobPattern())
-            {
-                JSONObject bobObj = new JSONObject();
-                bobObj.put("Direction", bob.direction);
-                bobObj.put("Offset", bob.offset);
-                bobArray.put(bobObj);
-            }
-            obj.put("BobPattern", bobArray);
-
-            return obj.toString();
-        }
-        catch(JSONException e)
-        {
-            e.printStackTrace();
-        }
-        return null;
+        Gson gson = new Gson();
+        return gson.toJson(song);
     }
     // load .json file & return string
     public static String loadJSON(String filePath)
@@ -79,17 +60,14 @@ public class JsonUtility {
     }
 
 
-    public static List<RegisteredSong> getAllSongs(String directoryPath)
+    public static ArrayList<RegisteredSong> getAllSongs(File directoryPath)
     {
-        List<RegisteredSong> songs = new ArrayList<RegisteredSong>();
+        ArrayList<RegisteredSong> songs = new ArrayList<RegisteredSong>();
 
-        File f = new File(directoryPath);
-        File[] files = f.listFiles();
-        int fileCount = files.length;
-        if (files != null)
-        {
-            for (int i = 0; i < files.length; i++) {
-                String filePath = files[i].getAbsolutePath();
+        File[] files = directoryPath.listFiles();
+        if(files != null) {
+            for (File file : files) {
+                String filePath = file.getAbsolutePath();
                 RegisteredSong aSong = loadAndParseJSON(filePath);
                 songs.add(aSong);
             }
@@ -114,12 +92,12 @@ public class JsonUtility {
     }
 
 
-    public static void writeJSONToFile(String json, String songName)
+    public static void writeJSONToFile(Context context, String json, String songName)
     {
         try
         {
-            FileWriter writer = new FileWriter("/songs/" + songName + ".json");
-            writer.write(json);
+            FileOutputStream writer = context.openFileOutput(songName + ".json", 0);
+            writer.write(json.getBytes());
             writer.close();
         }
         catch(IOException ee)
