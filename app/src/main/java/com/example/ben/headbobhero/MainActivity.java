@@ -74,6 +74,7 @@ public class MainActivity extends Activity {
     private void initList() {
         songList.clear();
         songList.addAll(JsonUtility.getAllSongs(new File(getFilesDir().getPath())));
+        //songList.add(new RegisteredSong("All Star", null, 0, new ArrayList<HeadBob>()));
     }
 
     @Override
