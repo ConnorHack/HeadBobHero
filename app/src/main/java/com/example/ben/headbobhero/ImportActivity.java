@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ImportActivity extends Activity {
+    private ImportAdapter impAdpt;
     Map<Long, String> songMap = new HashMap<Long, String>();
 
 
@@ -26,6 +28,11 @@ public class ImportActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_import);
+        songMap = getMusicMap();
+
+        ListView lv = (ListView) findViewById(R.id.listView);
+        impAdpt = new ImportAdapter(songMap);
+        lv.setAdapter(impAdpt);
     }
 
     public Map findMusic() {
