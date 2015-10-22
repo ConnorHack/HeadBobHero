@@ -220,15 +220,21 @@ public class GameBoard extends View implements SensorEventListener {
 
                 if (bobOffset > -128 && bobOffset < getWidth()) {
 
+                    if(currentMissedBobs.contains(bob)) {
+                        p.setAlpha(127);
+                    } else {
+                        p.setAlpha(255);
+                    }
+
                     switch (bob.direction) {
                         case DOWN:
-                            canvas.drawBitmap(bm_bob_down, bobOffset, bobYPos, null);
+                            canvas.drawBitmap(bm_bob_down, bobOffset, bobYPos, p);
                             break;
                         case LEFT:
-                            canvas.drawBitmap(bm_bob_left, bobOffset, bobYPos, null);
+                            canvas.drawBitmap(bm_bob_left, bobOffset, bobYPos, p);
                             break;
                         case RIGHT:
-                            canvas.drawBitmap(bm_bob_right, bobOffset, bobYPos, null);
+                            canvas.drawBitmap(bm_bob_right, bobOffset, bobYPos, p);
                             break;
                     }
                 }
@@ -241,12 +247,19 @@ public class GameBoard extends View implements SensorEventListener {
                         // Set the head-bob direction to scan for and begin scanning
                         scanForHeadBob = bob;
                         scanning = true;
-                    } else if(scanForHeadBobOverlap == null && scanForHeadBob != bob) {
-                        scanForHeadBobOverlap = bob;
+//                    } else if(scanForHeadBobOverlap == null && scanForHeadBob != bob) {
+//                        scanForHeadBobOverlap = bob;
+//                    }
                     }
                 }
 
-                if (!currentMissedBobs.contains(bob) &&(bobOffset < 0 && !hasScannedCorrectBob || (bobOffset < 128 && hasScannedCorrectBob && scanForHeadBob == bob) || (bobOffset > 0 && bobOffset < 128 && scanForHeadBob != null && bob == scanForHeadBobOverlap))) {
+                if (!currentMissedBobs.contains(bob) &&
+                        (
+                                (bobOffset < 0 && !hasScannedCorrectBob) ||
+                                (bobOffset < 128 && hasScannedCorrectBob && scanForHeadBob == bob)// ||
+                                //(bobOffset > 0 && bobOffset < 128 && scanForHeadBob != null && bob == scanForHeadBobOverlap)
+                        )
+                    ) {
                     if (hasScannedCorrectBob) {
                         //Log.d("play", "got bob: " + scanForHeadBob);
                         gameFeedbackString.text = bobMatchStrings[random.nextInt(bobMatchStrings.length)];
@@ -266,13 +279,8 @@ public class GameBoard extends View implements SensorEventListener {
                     }
                     gameFeedbackRemoveHandler.removeCallbacks(gameFeedbackRemoveRunnable);
                     gameFeedbackRemoveHandler.postDelayed(gameFeedbackRemoveRunnable, 1000);
+                    scanForHeadBob = null;
 
-                    if(scanForHeadBobOverlap != null) {
-                        scanForHeadBob = scanForHeadBobOverlap;
-                        scanForHeadBobOverlap = null;
-                    } else {
-                        scanForHeadBob = null;
-                    }
 
                     hasScannedCorrectBob = false;
 
