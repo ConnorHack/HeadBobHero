@@ -26,6 +26,8 @@ public class ImportActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_import);
+        //findMusic();
+        //playSong();
     }
 
     public Map findMusic() {
@@ -44,9 +46,7 @@ public class ImportActivity extends Activity {
                 long thisId = cursor.getLong(idColumn);
                 String thisTitle = cursor.getString(titleColumn);
                 // below is processing the found audio
-                if(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC) != 0){
                     songMap.put(thisId, thisTitle);
-                }
             } while (cursor.moveToNext());
         }
         return songMap;
@@ -54,6 +54,52 @@ public class ImportActivity extends Activity {
 
     public Map getMusicMap(){
         return findMusic();
+    }
+
+    public void playSong(){
+            Uri contentUri = ContentUris.withAppendedId(
+                    android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, 18168);
+
+            final MediaPlayer mMediaPlayer = new MediaPlayer();
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        try {
+                mMediaPlayer.setDataSource(getApplicationContext(), contentUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            mMediaPlayer.prepareAsync();
+            mMediaPlayer.start();
+
+        System.out.println("JOELYTESTINGFINISH");
+
+            /*
+            //TESTING
+            Thread th=new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        mMediaPlayer.prepare();
+                        //mMediaPlayer.start();
+                    } catch (Exception e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                    //send message to handler
+                }
+            });
+            th.start();
+
+            mMediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                @Override
+                public void onPrepared(MediaPlayer mMediaPlayer) {
+                    mMediaPlayer.start();
+                }
+            });
+*/
+            //ENDTESTING
+
+
     }
 
     @Override
