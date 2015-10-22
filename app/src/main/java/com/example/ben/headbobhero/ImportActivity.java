@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ImportActivity extends Activity {
+    private ImportAdapter impAdpt;
     Map<Long, String> songMap = new HashMap<Long, String>();
 
 
