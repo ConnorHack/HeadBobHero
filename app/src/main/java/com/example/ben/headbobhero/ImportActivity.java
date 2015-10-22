@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,8 +27,11 @@ public class ImportActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_import);
-        //findMusic();
-        //playSong();
+        songMap = getMusicMap();
+
+        ListView lv = (ListView) findViewById(R.id.listView);
+        impAdpt = new ImportAdapter(songMap);
+        lv.setAdapter(impAdpt);
     }
 
     public Map findMusic() {
@@ -46,7 +50,9 @@ public class ImportActivity extends Activity {
                 long thisId = cursor.getLong(idColumn);
                 String thisTitle = cursor.getString(titleColumn);
                 // below is processing the found audio
+                if(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC) != 0){
                     songMap.put(thisId, thisTitle);
+                }
             } while (cursor.moveToNext());
         }
         return songMap;

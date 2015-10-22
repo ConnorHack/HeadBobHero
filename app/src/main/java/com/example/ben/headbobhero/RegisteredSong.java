@@ -15,7 +15,7 @@ public class RegisteredSong {
     //TODO: use Song object for these things instead once it's created
     private String songName = "";
     private String songPath = "";
-
+    private int highestScore = 0;
     private int difficulty = 0;
     private ArrayList<HeadBob> bobPattern = new ArrayList<HeadBob>();
 
@@ -27,6 +27,7 @@ public class RegisteredSong {
         this.bobPattern = bobs;
     }
     public RegisteredSong(){}
+
     public void addBobToPattern(HeadBob bob)
     {
         this.bobPattern.add(bob);
@@ -44,7 +45,6 @@ public class RegisteredSong {
     {
         return this.bobPattern;
     }
-
     public void resetBobPattern()
     {
         this.bobPattern.clear();
@@ -68,11 +68,13 @@ public class RegisteredSong {
         this.songName = name;
     }
 
+    public int getHighestScore() {return this.highestScore;}
+    public void setHighestScore(int newHighest) {this.highestScore = newHighest;}
+
     public int getDifficulty()
     {
         return this.difficulty;
     }
-
     public void setNewDifficulty(int diff) {
         this.difficulty = diff;
     }
