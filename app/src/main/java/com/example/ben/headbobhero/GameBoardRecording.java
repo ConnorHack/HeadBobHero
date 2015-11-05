@@ -32,10 +32,12 @@ public class GameBoardRecording extends View {
     private final Bitmap bm_bob_down;
     private final Bitmap bm_bob_left;
     private final Bitmap bm_bob_right;
+    private final Bitmap bm_bg;
 
     private boolean startedRecording = false;
     private CountDownTimer countdownToStart = null;
     private int secondsLeftBeforeStart = 5;
+    private int bgSplitLocation = 0;
 
     public GameBoardRecording(Context context, AttributeSet aSet) {
         super(context, aSet);
@@ -46,6 +48,7 @@ public class GameBoardRecording extends View {
         bm_bob_down = BitmapFactory.decodeResource(getResources(), R.drawable.bob_down);
         bm_bob_left = BitmapFactory.decodeResource(getResources(), R.drawable.bob_left);
         bm_bob_right = BitmapFactory.decodeResource(getResources(), R.drawable.bob_right);
+        bm_bg = BitmapFactory.decodeResource(getResources(), R.drawable.bob_background);
     }
 
     /**
@@ -69,11 +72,6 @@ public class GameBoardRecording extends View {
 
     @Override
     synchronized public void onDraw(Canvas canvas) {
-        //create a black canvas
-        p.setColor(Color.BLACK);
-        p.setAlpha(255);
-        p.setStrokeWidth(1);
-        canvas.drawRect(0, 0, getWidth(), getHeight(), p);
 
         if (!startedRecording) {
 
@@ -119,6 +117,16 @@ public class GameBoardRecording extends View {
 
             canvas.drawText("Recording completed!", xPos, yPos, textPaint);
         } else {
+
+            p.setColor(Color.BLACK);
+            p.setAlpha(255);
+            canvas.drawBitmap(bm_bg, bgSplitLocation, 0, p);
+            canvas.drawBitmap(bm_bg, bgSplitLocation + getWidth(), 0, p);
+            bgSplitLocation -= 4;
+            if(bgSplitLocation < -getWidth()) {
+                bgSplitLocation = 0;
+            }
+
             // Song hasn't ended!
             Iterator<HeadBob> headBobIterator = headBobs.iterator();
             int bobYPos = canvas.getHeight() / 2 - 50;
