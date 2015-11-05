@@ -17,6 +17,7 @@ public class RegisteredSong {
     private String songPath = "";
     private int highestScore = 0;
     private int difficulty = 0;
+
     private ArrayList<HeadBob> bobPattern = new ArrayList<HeadBob>();
 
     public RegisteredSong(String name, String path, int difficulty, ArrayList<HeadBob> bobs)
