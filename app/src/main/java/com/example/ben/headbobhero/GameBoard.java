@@ -69,6 +69,10 @@ public class GameBoard extends View implements SensorEventListener {
     private int bobsMatched = 0;
     private int bobsMissed = 0;
     private int bobsMissedSinceLastMatch = 0;
+    private int multiplier = 1;
+    private int bobsMatchedInARow = 0;
+    private int bobsMatchedInARowForNextMultiplier = 10;
+    private int score = 0;
 
     private Random random = new Random();
 
@@ -266,6 +270,11 @@ public class GameBoard extends View implements SensorEventListener {
                         gameFeedbackString.color = Color.GREEN;
                         bobsMatched++;
                         bobsMissedSinceLastMatch = 0;
+                        bobsMatchedInARow++;
+                        if (bobsMatchedInARow >= bobsMatchedInARowForNextMultiplier) {
+                            multiplier++;
+                        }
+                        score = score + multiplier;
                         headBobIterator.remove();
                     } else {
                         //Log.d("play", "did not get bob " + bob.direction
@@ -275,6 +284,8 @@ public class GameBoard extends View implements SensorEventListener {
                         gameFeedbackString.color = Color.RED;
                         bobsMissed++;
                         bobsMissedSinceLastMatch++;
+                        bobsMatchedInARow = 0;
+                        multiplier = 1;
                         currentMissedBobs.add(bob);
                     }
                     gameFeedbackRemoveHandler.removeCallbacks(gameFeedbackRemoveRunnable);

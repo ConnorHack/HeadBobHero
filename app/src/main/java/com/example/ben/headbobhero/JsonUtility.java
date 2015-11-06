@@ -69,7 +69,9 @@ public class JsonUtility {
             for (File file : files) {
                 String filePath = file.getAbsolutePath();
                 RegisteredSong aSong = loadAndParseJSON(filePath);
-                songs.add(aSong);
+                if(aSong != null) {
+                    songs.add(aSong);
+                }
             }
         }
         return songs;

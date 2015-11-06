@@ -7,11 +7,16 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by Connor on 10/1/2015.
@@ -275,8 +280,23 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         mRegisteringBob = false;
 
         // Set up the media player to play music
-        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
-        mediaPlayer.seekTo(36000);
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        //setting the specific URI as the media. getApplicationContext() returns the app's context which
+        //is required to setDataSource
+        try {
+            mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(song.getSongPath()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //this should be done in its own thread according to android documentation, but this works
+        try {
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            System.out.println("------------------------ TESTING2 ---------------");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
 
         frame.removeCallbacks(frameUpdate);
         frame.postDelayed(frameUpdate, FRAME_RATE);
