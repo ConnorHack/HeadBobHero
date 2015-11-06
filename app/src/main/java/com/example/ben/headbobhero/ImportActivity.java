@@ -62,10 +62,12 @@ public class ImportActivity extends Activity {
 
     public Map<Long, String> findMusic() {
 
+        String selection = (MediaStore.Audio.Media.IS_MUSIC + "!= 0");
+
         Map<Long, String> allSongs = new HashMap<Long, String>();
         ContentResolver contentResolver = getContentResolver();
         Uri uri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor cursor = contentResolver.query(uri, null, null, null, null);
+        Cursor cursor = contentResolver.query(uri, null, selection, null, null);
         if (cursor == null) {
             // query failed, handle error.
             //this should have a popup that there was an issue trying trying to get music
@@ -78,9 +80,8 @@ public class ImportActivity extends Activity {
                 long thisId = cursor.getLong(idColumn);
                 String thisTitle = cursor.getString(titleColumn);
                 // below is processing the found audio
-                if (cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC) != 0) {
-                    allSongs.put(thisId, thisTitle);
-                }
+                //if (cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC) != 0) {
+                allSongs.put(thisId, thisTitle);
             } while (cursor.moveToNext());
         }
         return allSongs;
