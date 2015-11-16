@@ -284,7 +284,7 @@ public class GameBoard extends View implements SensorEventListener {
                         if (bobsMatchedInARow >= bobsMatchedInARowForNextMultiplier) {
                             multiplier++;
                         }
-                        score = score + multiplier;
+                        score = score + (10 * multiplier);
                         headBobIterator.remove();
                     } else {
                         //Log.d("play", "did not get bob " + bob.direction
