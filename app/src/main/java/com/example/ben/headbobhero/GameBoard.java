@@ -73,7 +73,7 @@ public class GameBoard extends View implements SensorEventListener {
     private int multiplier = 1;
     private int bobsMatchedInARow = 0;
     private int bobsMatchedInARowForNextMultiplier = 10;
-    private int score = 0;
+    public int score = 0;
     private int bgSplitLocation = 0;
 
     private Random random = new Random();
@@ -284,7 +284,7 @@ public class GameBoard extends View implements SensorEventListener {
                         if (bobsMatchedInARow >= bobsMatchedInARowForNextMultiplier) {
                             multiplier++;
                         }
-                        score = score + multiplier;
+                        score = score + (10 * multiplier);
                         headBobIterator.remove();
                     } else {
                         //Log.d("play", "did not get bob " + bob.direction

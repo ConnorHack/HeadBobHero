@@ -22,14 +22,15 @@ public class PlayActivity extends Activity {
 
     private RegisteredSong song;
     private Handler playMusicHandler;
-
+    private JsonUtility jutility  = new JsonUtility();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
 
         final Intent intent = getIntent();
-        song = JsonUtility.ParseJSON(intent.getStringExtra("registered_song"));
+        RegisteredSong song = jutility.ParseJSON(intent.getStringExtra("registered_song"));
 
         mediaPlayer = new MediaPlayer();
 
@@ -88,11 +89,22 @@ public class PlayActivity extends Activity {
     //the context supplied "getApplicationContext" may not be correct but works
     public void playMusic(){
         mediaPlayer.start();
-        ((GameBoard)findViewById(R.id.the_canvas)).setGameOverRunnable(new Runnable() {
+        final GameBoard game = (GameBoard)findViewById(R.id.the_canvas);
+        (game).setGameOverRunnable(new Runnable() {
             @Override
             public void run() {
                 mediaPlayer.release();
                 mediaPlayer = null;
+                //get score from game & set as song's high score
+                int newScore = game.score;
+                if(newScore > song.getHighestScore())
+                {
+                    song.setHighestScore(newScore);
+                }
+                //update the song
+                String writeSong = jutility.toJSON(song);
+                jutility.writeJSONToFile(getApplicationContext(), writeSong, song.getSongName());
+
             }
         });
     }
