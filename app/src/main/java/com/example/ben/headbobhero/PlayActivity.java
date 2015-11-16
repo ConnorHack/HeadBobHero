@@ -22,7 +22,6 @@ public class PlayActivity extends Activity {
 
     private RegisteredSong song;
     private Handler playMusicHandler;
-    private JsonUtility jutility  = new JsonUtility();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -30,7 +29,7 @@ public class PlayActivity extends Activity {
         setContentView(R.layout.activity_play);
 
         final Intent intent = getIntent();
-        RegisteredSong song = jutility.ParseJSON(intent.getStringExtra("registered_song"));
+        RegisteredSong song = JsonUtility.ParseJSON(intent.getStringExtra("registered_song"));
 
         mediaPlayer = new MediaPlayer();
 
@@ -96,15 +95,14 @@ public class PlayActivity extends Activity {
                 mediaPlayer.release();
                 mediaPlayer = null;
                 //get score from game & set as song's high score
-                int newScore = game.score;
+               int newScore = game.score;
                 if(newScore > song.getHighestScore())
                 {
                     song.setHighestScore(newScore);
                 }
                 //update the song
-                String writeSong = jutility.toJSON(song);
-                jutility.writeJSONToFile(getApplicationContext(), writeSong, song.getSongName());
-
+                String writeSong = JsonUtility.toJSON(song);
+                JsonUtility.writeJSONToFile(getApplicationContext(), writeSong, song.getSongName());
             }
         });
     }
