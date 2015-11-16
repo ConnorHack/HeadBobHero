@@ -84,6 +84,10 @@ public class ImportActivity extends Activity {
                 allSongs.put(thisId, thisTitle);
             } while (cursor.moveToNext());
         }
+        allSongs.put(Long.valueOf(R.raw.song1), "September - Earth, Wind & Fire");
+        allSongs.put(Long.valueOf(R.raw.song2), "Juke Box Hero - Foreigner");
+        allSongs.put(Long.valueOf(R.raw.song3), "Danger Zone - Kenny Loggins");
+        allSongs.put(Long.valueOf(R.raw.song4), "What is Love - Haddaway");
         return allSongs;
     }
 
