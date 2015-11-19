@@ -36,7 +36,7 @@ public class MainActivity extends Activity {
         if (id == R.id.action_import) {
             Intent playIntent = new Intent(MainActivity.this, ImportActivity.class);
             playIntent.setAction("import_song");
-            startActivity(playIntent);
+            startActivityForResult(playIntent, ACTIVITY_RESULT_DONE);
         }
 
         return super.onOptionsItemSelected(item);
@@ -74,7 +74,7 @@ public class MainActivity extends Activity {
     private void initList() {
         songList.clear();
         songList.addAll(JsonUtility.getAllSongs(new File(getFilesDir().getPath())));
-        songList.add(new RegisteredSong("All Star", null, 0, new ArrayList<HeadBob>()));
+        //songList.add(new RegisteredSong("All Star", null, 0, new ArrayList<HeadBob>()));
     }
 
     @Override

@@ -7,13 +7,14 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class ImportAdapter extends BaseAdapter{
-    private final ArrayList songData;
+    private final ArrayList<Map.Entry<Long, String>> songData = new ArrayList<Map.Entry<Long, String>>();
     public ImportAdapter(Map<Long, String> songMap){
-        songData = new ArrayList();
-        songData.addAll(songMap.entrySet());
+        this.songData.addAll(songMap.entrySet());
     }
 
     @Override
@@ -23,7 +24,7 @@ public class ImportAdapter extends BaseAdapter{
 
     @Override
     public Map.Entry<Long, String> getItem(int position){
-        return (Map.Entry) songData.get(position);
+        return songData.get(position);
     }
 
     @Override

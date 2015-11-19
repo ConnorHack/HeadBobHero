@@ -4,11 +4,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.io.IOException;
 
 public class PlayActivity extends Activity {
 
@@ -22,14 +26,34 @@ public class PlayActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play);
 
         final Intent intent = getIntent();
         song = JsonUtility.ParseJSON(intent.getStringExtra("registered_song"));
 
-        mediaPlayer = MediaPlayer.create(getApplicationContext(), R.raw.song1);
+        mediaPlayer = new MediaPlayer();
 
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        //setting the specific URI as the media. getApplicationContext() returns the app's context which
+        //is required to setDataSource
+        System.out.println(Uri.parse(song.getSongPath()));
+        try {
+            mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(song.getSongPath()));
+        } catch (IOException e) {
+            System.out.println("------------------------ TESTING ---------------");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+        //this should be done in its own thread according to android documentation, but this works
+        try {
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            System.out.println("------------------------ HERERERHEJFHGHJDSHGFHJIJ ---------------");
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
         playMusicHandler = new Handler();
 
         playMusicHandler.postDelayed(playMusicDelay, 6850);
@@ -68,13 +92,21 @@ public class PlayActivity extends Activity {
 
     //the context supplied "getApplicationContext" may not be correct but works
     public void playMusic(){
-        mediaPlayer.seekTo(36000);
         mediaPlayer.start();
         playingGameBoard.setGameOverRunnable(new Runnable() {
             @Override
             public void run() {
                 mediaPlayer.release();
                 mediaPlayer = null;
+                //get score from game & set as song's high score
+               int newScore = playingGameBoard.score;
+                if(newScore > song.getHighestScore())
+                {
+                    song.setHighestScore(newScore);
+                }
+                //update the song
+                String writeSong = JsonUtility.toJSON(song);
+                JsonUtility.writeJSONToFile(getApplicationContext(), writeSong, song.getSongName());
             }
         });
     }

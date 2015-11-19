@@ -45,6 +45,7 @@ public class GameBoard extends View implements SensorEventListener {
     private final Bitmap bm_bob_down;
     private final Bitmap bm_bob_left;
     private final Bitmap bm_bob_right;
+    private final Bitmap bm_bg;
 
     // Rate at which to collect values from sensors
     private static int RATE = SensorManager.SENSOR_DELAY_FASTEST;
@@ -70,10 +71,19 @@ public class GameBoard extends View implements SensorEventListener {
     private int bobsMatched = 0;
     private int bobsMissed = 0;
     private int bobsMissedSinceLastMatch = 0;
+    private int multiplier = 1;
+
+    private int bobsMatchedInARow = 0;
+    private int bobsMatchedInARowForNextMultiplier = 10;
+    public int score = 0;
+    public int maxPossibleScore = 0;
+    private int bgSplitLocation = 0;
 
     private Random random = new Random();
 
     private final int ALLOWED_MISSED = 10;
+    // multiplier is multiplied by 10, so this is 50
+    private final int MAX_MULTIPLIER = 5;
 
     private HashSet<HeadBob> currentMissedBobs = new HashSet<HeadBob>();
 
@@ -101,6 +111,7 @@ public class GameBoard extends View implements SensorEventListener {
         bm_bob_down = BitmapFactory.decodeResource(getResources(), R.drawable.bob_down);
         bm_bob_left = BitmapFactory.decodeResource(getResources(), R.drawable.bob_left);
         bm_bob_right = BitmapFactory.decodeResource(getResources(), R.drawable.bob_right);
+        bm_bg = BitmapFactory.decodeResource(getResources(), R.drawable.bob_background);
 
         // Register the sensor listener with the specified rate
         // Initialize the sensor manager, gravity sensor, and gravity vector
@@ -140,25 +151,24 @@ public class GameBoard extends View implements SensorEventListener {
 
     @Override
     synchronized public void onDraw(Canvas canvas) {
-        //create a black canvas
-        p.setColor(Color.BLACK);
-        p.setAlpha(255);
-        p.setStrokeWidth(1);
-        canvas.drawRect(0, 0, getWidth(), getHeight(), p);
-        /*
-        TODO do something like this:
-        if (thisVariable) {
-            return
-        }
 
-        have another setter function
-        */
         //initialize the starfield if needed
         boolean shouldDrawLine = hasInitializedBobs;
         if (!hasInitializedBobs) {
             initializeHeadBobs();
 
             hasInitializedBobs = true;
+
+            // calculate the maximum score
+            int mult = 1;
+            for (int i = 0; i <= headBobs.size(); ++i) {
+
+                if (i % 10 == 0 && mult < MAX_MULTIPLIER) {
+                    mult++;
+                }
+                maxPossibleScore += 10 * mult;
+            }
+
         }
 
         if (!startedGame) {
@@ -220,6 +230,20 @@ public class GameBoard extends View implements SensorEventListener {
             }
         } else {
 
+            //create a black canvas
+            p.setColor(Color.BLACK);
+            p.setAlpha(255);
+            canvas.drawBitmap(bm_bg, bgSplitLocation, 0, p);
+            canvas.drawBitmap(bm_bg, bgSplitLocation + getWidth(), 0, p);
+
+            if (!isSongPaused) {
+                bgSplitLocation -= 4;
+            }
+            if(bgSplitLocation < -getWidth()) {
+                bgSplitLocation = 0;
+            }
+
+
             Iterator<HeadBob> headBobIterator = headBobs.iterator();
             int bobYPos = canvas.getHeight() / 2 - 45;
 
@@ -276,6 +300,11 @@ public class GameBoard extends View implements SensorEventListener {
                         gameFeedbackString.color = Color.GREEN;
                         bobsMatched++;
                         bobsMissedSinceLastMatch = 0;
+                        bobsMatchedInARow++;
+                        if (bobsMatchedInARow >= bobsMatchedInARowForNextMultiplier && multiplier < MAX_MULTIPLIER) {
+                            multiplier++;
+                        }
+                        score = score + (10 * multiplier);
                         headBobIterator.remove();
                     } else {
                         //Log.d("play", "did not get bob " + bob.direction
@@ -285,6 +314,8 @@ public class GameBoard extends View implements SensorEventListener {
                         gameFeedbackString.color = Color.RED;
                         bobsMissed++;
                         bobsMissedSinceLastMatch++;
+                        bobsMatchedInARow = 0;
+                        multiplier = 1;
                         currentMissedBobs.add(bob);
                     }
                     gameFeedbackRemoveHandler.removeCallbacks(gameFeedbackRemoveRunnable);
@@ -305,18 +336,21 @@ public class GameBoard extends View implements SensorEventListener {
                     bob.offset -= 4;
                 }
             }
+            textPaint.setColor(Color.WHITE);
+            textPaint.setAlpha(255);
+            textPaint.setTextAlign(Paint.Align.RIGHT);
+            textPaint.setTypeface(Typeface.SANS_SERIF);
+            textPaint.setTextSize(28);
+
+            canvas.drawText("x" + multiplier, 170, 35, textPaint);
 
             textPaint.setColor(Color.WHITE);
             textPaint.setAlpha(255);
             textPaint.setTextAlign(Paint.Align.RIGHT);
             textPaint.setTypeface(Typeface.SANS_SERIF);
-            textPaint.setTextSize(22);
+            textPaint.setTextSize(38);
 
-            if(bobsMissed == 0) {
-                canvas.drawText("100%", getWidth() - 20, 20, textPaint);
-            } else {
-                canvas.drawText("" + getBobPercentage() + "%", getWidth() - 20, 20, textPaint);
-            }
+            canvas.drawText("" + score, getWidth() - 20, 40, textPaint);
 
             textPaint.setColor(Color.RED);
             textPaint.setAlpha(255);
@@ -338,8 +372,8 @@ public class GameBoard extends View implements SensorEventListener {
             textPaint.setAlpha(255);
             textPaint.setTextAlign(Paint.Align.LEFT);
             textPaint.setTypeface(Typeface.SANS_SERIF);
-            textPaint.setTextSize(30);
-            canvas.drawText(gameFeedbackString.text, 145 , 20, textPaint);
+            textPaint.setTextSize(26);
+            canvas.drawText(gameFeedbackString.text, 145 , getHeight() - 3, textPaint);
 
             if(shouldDrawLine) {
                 p.setStrokeWidth(10);
