@@ -1,9 +1,5 @@
 package com.example.ben.headbobhero;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +35,10 @@ public class RegisteredSong {
         {
             addBobToPattern(bobCollection.get(i));
         }
+    }
+
+    public boolean hasRecording() {
+        return this.bobPattern.isEmpty();
     }
 
     public ArrayList<HeadBob> getBobPattern()

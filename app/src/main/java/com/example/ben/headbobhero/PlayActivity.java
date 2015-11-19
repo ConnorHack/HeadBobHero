@@ -1,11 +1,12 @@
 package com.example.ben.headbobhero;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -16,6 +17,8 @@ public class PlayActivity extends Activity {
 
     private RegisteredSong song;
     private Handler playMusicHandler;
+
+    private GameBoard playingGameBoard ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,19 +44,22 @@ public class PlayActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if(mediaPlayer != null) {
-            mediaPlayer.release();
+        if (mediaPlayer != null) {
+            mediaPlayer.pause();
         }
-        playMusicHandler.removeCallbacks(playMusicDelay);
-        super.onBackPressed();
+
+        playingGameBoard.pauseSong();
+        createDialogPausePlaying().show();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        ((GameBoard) findViewById(R.id.the_canvas)).setHeadBobs(song.getBobPattern());
+        playingGameBoard = (GameBoard)findViewById(R.id.the_canvas);
+        playingGameBoard.setHeadBobs(song.getBobPattern());
         frame.removeCallbacks(frameUpdate);
         frame.postDelayed(frameUpdate, FRAME_RATE);
+
     }
 
 
@@ -64,7 +70,7 @@ public class PlayActivity extends Activity {
     public void playMusic(){
         mediaPlayer.seekTo(36000);
         mediaPlayer.start();
-        ((GameBoard)findViewById(R.id.the_canvas)).setGameOverRunnable(new Runnable() {
+        playingGameBoard.setGameOverRunnable(new Runnable() {
             @Override
             public void run() {
                 mediaPlayer.release();
@@ -101,8 +107,55 @@ public class PlayActivity extends Activity {
             frame.removeCallbacks(frameUpdate);
             //make any updates to on screen objects here
             //then invoke the on draw by invalidating the canvas
-            ((GameBoard)findViewById(R.id.the_canvas)).invalidate();
+            playingGameBoard.invalidate();
             frame.postDelayed(frameUpdate, FRAME_RATE);
         }
     };
+
+
+    private void continuePlaying() {
+        playingGameBoard.resetStartedRecording();
+        playMusicHandler.postDelayed(playMusicDelay, 5000);
+    }
+
+    private void quitPlaying() {
+
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
+        }
+        playMusicHandler.removeCallbacks(playMusicDelay);
+        super.onBackPressed();
+    }
+
+    /**
+     * <h2>Create an alert dialog when the user presses the back button when
+     * playing for a song</h2>
+     *
+     * Action 1: Quit the song
+     * Action 2: Continue the song
+     *
+     * @return -  An alert dialog
+     */
+    private AlertDialog createDialogPausePlaying() {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+
+        return
+                dialogBuilder
+                        .setTitle("Song paused")
+                        .setPositiveButton("Play", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                continuePlaying();
+                            }
+                        })
+                        .setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                quitPlaying();
+                            }
+                        }).create();
+    }
 }

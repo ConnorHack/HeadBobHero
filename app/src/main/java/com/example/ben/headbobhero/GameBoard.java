@@ -29,6 +29,7 @@ public class GameBoard extends View implements SensorEventListener {
 
     boolean hasInitializedBobs = false;
     private boolean startedGame = false;
+    private boolean isSongPaused = false ;
     private CountDownTimer countdownToStart = null;
     private int secondsLeftBeforeStart;
 
@@ -144,6 +145,14 @@ public class GameBoard extends View implements SensorEventListener {
         p.setAlpha(255);
         p.setStrokeWidth(1);
         canvas.drawRect(0, 0, getWidth(), getHeight(), p);
+        /*
+        TODO do something like this:
+        if (thisVariable) {
+            return
+        }
+
+        have another setter function
+        */
         //initialize the starfield if needed
         boolean shouldDrawLine = hasInitializedBobs;
         if (!hasInitializedBobs) {
@@ -165,6 +174,7 @@ public class GameBoard extends View implements SensorEventListener {
                     public void onFinish() {
                         secondsLeftBeforeStart = 1;
                         startedGame = true;
+                        isSongPaused = false ;
                     }
                 };
                 countdownToStart.start();
@@ -291,7 +301,9 @@ public class GameBoard extends View implements SensorEventListener {
                     headBobIterator.remove();
                 }
 
-                bob.offset -= 4;
+                if (!isSongPaused) {
+                    bob.offset -= 4;
+                }
             }
 
             textPaint.setColor(Color.WHITE);
@@ -337,6 +349,11 @@ public class GameBoard extends View implements SensorEventListener {
         }
     }
 
+    public void resetStartedRecording() {
+        startedGame = false ;
+        countdownToStart = null ;
+    }
+
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Don't need to account for anything here
@@ -367,5 +384,13 @@ public class GameBoard extends View implements SensorEventListener {
                 }
             }
         }
+    }
+
+    public void pauseSong() {
+        isSongPaused = true ;
+    }
+
+    public boolean isSongPaused() {
+        return isSongPaused ;
     }
 }
