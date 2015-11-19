@@ -35,6 +35,7 @@ public class GameBoardRecording extends View {
     private final Bitmap bm_bg;
 
     private boolean startedRecording = false;
+    private boolean isSongPaused = false ;
     private CountDownTimer countdownToStart = null;
     private int secondsLeftBeforeStart = 5;
     private int bgSplitLocation = 0;
@@ -60,7 +61,7 @@ public class GameBoardRecording extends View {
         recordedHeadBobs.add(headBob);
 
         // 64 because of image's width
-        headBobs.add(new HeadBob(getWidth()/2 - (64), headBob.direction));
+        headBobs.add(new HeadBob(getWidth() / 2 - (64), headBob.direction));
     }
 
     /**
@@ -76,16 +77,19 @@ public class GameBoardRecording extends View {
         if (!startedRecording) {
 
             if (countdownToStart == null) {
+                //TODO Put a black box here with an opacity of a certain degree
+                //      This will hide the background items while displaying the ready text
                 countdownToStart = new CountDownTimer(5000, 500) {
                     @Override
                     public void onTick(long millisUntilFinished) {
-                        secondsLeftBeforeStart = (int)Math.ceil(millisUntilFinished / 1000) + 1;
+                        secondsLeftBeforeStart = (int) Math.ceil(millisUntilFinished / 1000) + 1;
                     }
 
                     @Override
                     public void onFinish() {
                         secondsLeftBeforeStart = 1;
                         startedRecording = true;
+                        isSongPaused = false ;
                     }
                 };
                 countdownToStart.start();
@@ -154,14 +158,32 @@ public class GameBoardRecording extends View {
                     headBobIterator.remove();
                 }
 
-                bob.offset -= 4;
+                if (!isSongPaused) {
+                    bob.offset -= 4;
+                }
             }
 
             //TODO Wait for the handle
                 p.setStrokeWidth(10);
                 p.setColor(Color.RED);
                 canvas.drawLine(getWidth()/2, 0, getWidth()/2, getHeight(), p);
-
         }
+    }
+
+    public void resetStartedRecording() {
+        startedRecording = false ;
+        countdownToStart = null ;
+    }
+
+    public boolean isRecordingFinished() {
+        return hasSongEnded ;
+    }
+
+    public void pauseSong() {
+        isSongPaused = true ;
+    }
+
+    public boolean isSongPaused() {
+        return isSongPaused ;
     }
 }

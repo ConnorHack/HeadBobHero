@@ -1,7 +1,9 @@
 package com.example.ben.headbobhero;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -14,8 +16,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
+import android.widget.Toast;
 
-import java.io.File;
 import java.io.IOException;
 
 /**
@@ -126,23 +128,18 @@ public class RecordingActivity extends Activity implements SensorEventListener {
     }
 
     @Override
-    public void onBackPressed() {
-        if(mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
+     public void onBackPressed() {
+
+        if (mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
         }
-        mediaPlayer.release();
-        mediaPlayer = null;
-        recordingDelayHandler.removeCallbacks(recordingDelayRunnable);
-        String songJson = JsonUtility.toJSON(song);
-        JsonUtility.writeJSONToFile(this, songJson, song.getSongName());
-        Intent resultIntent = new Intent();
-        resultIntent.putExtra("recorded_song", songJson);
-        setResult(Activity.RESULT_OK, resultIntent);
-        super.onBackPressed();
+
+        recordingGameBoard.pauseSong();
+        createDialogPauseRecording().show();
     }
 
     @Override
-    protected void onPause() {
+        protected void onPause() {
         super.onPause();
 
         // Unregister the sensor listener
@@ -311,15 +308,18 @@ public class RecordingActivity extends Activity implements SensorEventListener {
      * @param offset - The offset to place the Head Bob
      */
     public void registerHeadBob(HeadBobDirection direction, long offset) {
-        HeadBob headBob = new HeadBob(offset, direction);
 
-        // TODO Temporary fix; will be replaced when we have actual instances of songs
-        //GameBoard.recordedHeadBobs.add(headBob);
-        song.addBobToPattern(headBob);
+        if (!recordingGameBoard.isSongPaused()) {
+            HeadBob headBob = new HeadBob(offset, direction);
 
-        recordingGameBoard.addHeadBob(headBob);
-        mRegisteringBob = true;
-        mCurrentBob = direction;
+            // TODO Temporary fix; will be replaced when we have actual instances of songs
+            //GameBoard.recordedHeadBobs.add(headBob);
+            song.addBobToPattern(headBob);
+
+            recordingGameBoard.addHeadBob(headBob);
+            mRegisteringBob = true;
+            mCurrentBob = direction;
+        }
     }
 
     /**
@@ -347,18 +347,99 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         return output;
     }
 
-
     private Runnable frameUpdate = new Runnable() {
         @Override
         synchronized public void run() {
             frame.removeCallbacks(frameUpdate);
             //make any updates to on screen objects here
             //then invoke the on draw by invalidating the canvas
-            if(mIsRecording && !mIsPaused) {
+            if(mIsRecording && !mIsPaused && !recordingGameBoard.isSongPaused()) {
                 bobRecordingState.currentOffset += 4;
             }
-            ((GameBoardRecording)findViewById(R.id.canvas_recording)).invalidate();
+            recordingGameBoard.invalidate();
             frame.postDelayed(frameUpdate, FRAME_RATE);
         }
     };
+
+    /**
+     * <h2>Continue the recording</h2>
+     *
+     * Start with a 5 second countdown before playing the song again
+     */
+    private void continueRecording() {
+        recordingGameBoard.resetStartedRecording();
+        recordingDelayHandler.postDelayed(recordingDelayRunnable, 5000);
+    }
+
+    /**
+     * <h2>Quit and cancel the current recording</h2>
+     */
+    private void quitAndCancelRecording() {
+        mediaPlayer.stop();
+        mediaPlayer.release();
+        mediaPlayer = null;
+        recordingDelayHandler.removeCallbacks(recordingDelayRunnable);
+        Toast.makeText(this, "Recording discarded.", Toast.LENGTH_SHORT).show();
+        super.onBackPressed();
+    }
+
+    /**
+     * <h2>Quit and save the current recording</h2>
+     */
+    private void quitAndSaveRecording() {
+        mediaPlayer.stop();
+        mediaPlayer.release();
+        mediaPlayer = null;
+        recordingDelayHandler.removeCallbacks(recordingDelayRunnable);
+        String songJson = JsonUtility.toJSON(song);
+        JsonUtility.writeJSONToFile(this, songJson, song.getSongName());
+        Intent resultIntent = new Intent();
+        resultIntent.putExtra("recorded_song", songJson);
+        setResult(Activity.RESULT_OK, resultIntent);
+        Toast.makeText(this, "Recording saved.", Toast.LENGTH_SHORT).show();
+        super.onBackPressed();
+    }
+
+    /**
+     * <h2>Create an alert dialog when the user presses the back button when
+     * recording for a song</h2>
+     *
+     * Action 1: Quit the recording and destroy the recording
+     * Action 2: Continue the recording
+     * Action 3: Quit the recording and save the recording
+     *
+     * @return -  An alert dialog
+     */
+   private AlertDialog createDialogPauseRecording() {
+       AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+
+       boolean isDone = recordingGameBoard.isRecordingFinished();
+
+       String title = ( isDone ? "Recording completed" : "Recording paused");
+
+       if (!isDone) {
+           dialogBuilder.setPositiveButton("Continue", new DialogInterface.OnClickListener() {
+               @Override
+               public void onClick(DialogInterface dialog, int which) {
+                   continueRecording();
+               }
+           });
+       }
+
+       dialogBuilder.setTitle(title);
+       dialogBuilder.setNeutralButton("Save", new DialogInterface.OnClickListener() {
+           @Override
+           public void onClick(DialogInterface dialog, int which) {
+               quitAndSaveRecording();
+           }
+       });
+       dialogBuilder.setNegativeButton("Discard", new DialogInterface.OnClickListener() {
+           @Override
+           public void onClick(DialogInterface dialog, int which) {
+               quitAndCancelRecording();
+           }
+       });
+
+       return dialogBuilder.create();
+   }
 }
