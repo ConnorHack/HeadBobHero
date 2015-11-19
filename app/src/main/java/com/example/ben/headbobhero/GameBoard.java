@@ -314,18 +314,21 @@ public class GameBoard extends View implements SensorEventListener {
 
                 bob.offset -= 4;
             }
+            textPaint.setColor(Color.WHITE);
+            textPaint.setAlpha(255);
+            textPaint.setTextAlign(Paint.Align.RIGHT);
+            textPaint.setTypeface(Typeface.SANS_SERIF);
+            textPaint.setTextSize(28);
+
+            canvas.drawText("x" + multiplier, 170, 35, textPaint);
 
             textPaint.setColor(Color.WHITE);
             textPaint.setAlpha(255);
             textPaint.setTextAlign(Paint.Align.RIGHT);
             textPaint.setTypeface(Typeface.SANS_SERIF);
-            textPaint.setTextSize(22);
+            textPaint.setTextSize(38);
 
-            if(bobsMissed == 0) {
-                canvas.drawText("100%", getWidth() - 20, 20, textPaint);
-            } else {
-                canvas.drawText("" + getBobPercentage() + "%", getWidth() - 20, 20, textPaint);
-            }
+            canvas.drawText("" + score, getWidth() - 20, 40, textPaint);
 
             textPaint.setColor(Color.RED);
             textPaint.setAlpha(255);
@@ -347,8 +350,8 @@ public class GameBoard extends View implements SensorEventListener {
             textPaint.setAlpha(255);
             textPaint.setTextAlign(Paint.Align.LEFT);
             textPaint.setTypeface(Typeface.SANS_SERIF);
-            textPaint.setTextSize(30);
-            canvas.drawText(gameFeedbackString.text, 145 , 20, textPaint);
+            textPaint.setTextSize(26);
+            canvas.drawText(gameFeedbackString.text, 145 , getHeight() - 3, textPaint);
 
             if(shouldDrawLine) {
                 p.setStrokeWidth(10);

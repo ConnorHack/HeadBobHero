@@ -29,7 +29,7 @@ public class PlayActivity extends Activity {
         setContentView(R.layout.activity_play);
 
         final Intent intent = getIntent();
-        RegisteredSong song = JsonUtility.ParseJSON(intent.getStringExtra("registered_song"));
+        song = JsonUtility.ParseJSON(intent.getStringExtra("registered_song"));
 
         mediaPlayer = new MediaPlayer();
 
