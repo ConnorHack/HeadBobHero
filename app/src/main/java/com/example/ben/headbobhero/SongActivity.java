@@ -3,9 +3,11 @@ package com.example.ben.headbobhero;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 public class SongActivity extends Activity {
 
@@ -40,6 +42,16 @@ public class SongActivity extends Activity {
                 startActivityForResult(recordingIntent, ACTIVITY_RESULT_DONE_RECORDING);
             }
         });
+
+        int score = song.getHighestScore();
+
+        String scoreText = "No high score yet";
+
+        if(score > 0) {
+            scoreText = "High Score: " + score;
+        }
+
+       ((TextView) findViewById(R.id.highscore)).setText(scoreText);
     }
 
     public void onBackPressed() {
