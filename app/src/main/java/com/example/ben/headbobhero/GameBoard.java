@@ -71,14 +71,18 @@ public class GameBoard extends View implements SensorEventListener {
     private int bobsMissed = 0;
     private int bobsMissedSinceLastMatch = 0;
     private int multiplier = 1;
+
     private int bobsMatchedInARow = 0;
     private int bobsMatchedInARowForNextMultiplier = 10;
     public int score = 0;
+    public int maxPossibleScore = 0;
     private int bgSplitLocation = 0;
 
     private Random random = new Random();
 
     private final int ALLOWED_MISSED = 10;
+    // multiplier is multiplied by 10, so this is 50
+    private final int MAX_MULTIPLIER = 5;
 
     private HashSet<HeadBob> currentMissedBobs = new HashSet<HeadBob>();
 
@@ -153,6 +157,17 @@ public class GameBoard extends View implements SensorEventListener {
             initializeHeadBobs();
 
             hasInitializedBobs = true;
+
+            // calculate the maximum score
+            int mult = 1;
+            for (int i = 0; i <= headBobs.size(); ++i) {
+
+                if (i % 10 == 0 && mult < MAX_MULTIPLIER) {
+                    mult++;
+                }
+                maxPossibleScore += 10 * mult;
+            }
+
         }
 
         if (!startedGame) {
@@ -281,7 +296,7 @@ public class GameBoard extends View implements SensorEventListener {
                         bobsMatched++;
                         bobsMissedSinceLastMatch = 0;
                         bobsMatchedInARow++;
-                        if (bobsMatchedInARow >= bobsMatchedInARowForNextMultiplier) {
+                        if (bobsMatchedInARow >= bobsMatchedInARowForNextMultiplier && multiplier < MAX_MULTIPLIER) {
                             multiplier++;
                         }
                         score = score + (10 * multiplier);
