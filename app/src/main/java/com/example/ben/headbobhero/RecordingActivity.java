@@ -394,7 +394,7 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         String songJson = JsonUtility.toJSON(song);
         JsonUtility.writeJSONToFile(this, songJson, song.getSongName());
         Intent resultIntent = new Intent();
-        resultIntent.putExtra("recorded_song", songJson);
+        resultIntent.putExtra("updated_song", songJson);
         setResult(Activity.RESULT_OK, resultIntent);
         Toast.makeText(this, "Recording saved.", Toast.LENGTH_SHORT).show();
         super.onBackPressed();

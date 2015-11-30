@@ -107,6 +107,9 @@ public class PlayActivity extends Activity {
                 //update the song
                 String writeSong = JsonUtility.toJSON(song);
                 JsonUtility.writeJSONToFile(getApplicationContext(), writeSong, song.getSongName());
+                Intent resultIntent = new Intent();
+                resultIntent.putExtra("updated_song", writeSong);
+                setResult(Activity.RESULT_OK, resultIntent);
             }
         });
     }

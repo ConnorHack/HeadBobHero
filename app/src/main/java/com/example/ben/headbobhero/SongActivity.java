@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 public class SongActivity extends Activity {
 
-    static final int ACTIVITY_RESULT_DONE_RECORDING = 1;
+    static final int ACTIVITY_RESULT_DONE = 1;
 
     RegisteredSong song;
 
@@ -29,7 +29,7 @@ public class SongActivity extends Activity {
                 Intent playIntent = new Intent(SongActivity.this, PlayActivity.class);
                 playIntent.putExtra("registered_song", JsonUtility.toJSON(song));
                 playIntent.setAction("play_headbobs");
-                startActivity(playIntent);
+                startActivityForResult(playIntent, ACTIVITY_RESULT_DONE);
             }
         });
 
@@ -39,7 +39,7 @@ public class SongActivity extends Activity {
                 Intent recordingIntent = new Intent(SongActivity.this, RecordingActivity.class);
                 recordingIntent.putExtra("registered_song", JsonUtility.toJSON(song));
                 recordingIntent.setAction("record_headbobs");
-                startActivityForResult(recordingIntent, ACTIVITY_RESULT_DONE_RECORDING);
+                startActivityForResult(recordingIntent, ACTIVITY_RESULT_DONE);
             }
         });
 
@@ -85,9 +85,9 @@ public class SongActivity extends Activity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch(requestCode) {
-            case (ACTIVITY_RESULT_DONE_RECORDING) : {
+            case (ACTIVITY_RESULT_DONE) : {
                 if (resultCode == Activity.RESULT_OK) {
-                    song = JsonUtility.ParseJSON(data.getStringExtra("recorded_song"));
+                    song = JsonUtility.ParseJSON(data.getStringExtra("updated_song"));
                 }
                 break;
             }
