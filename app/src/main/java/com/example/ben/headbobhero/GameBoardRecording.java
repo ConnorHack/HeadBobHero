@@ -133,7 +133,7 @@ public class GameBoardRecording extends View {
 
             // Song hasn't ended!
             Iterator<HeadBob> headBobIterator = headBobs.iterator();
-            int bobYPos = canvas.getHeight() / 2 - 50;
+            int bobYPos = canvas.getHeight() / 2 - 42;
 
             while (headBobIterator.hasNext()) {
                 HeadBob bob = headBobIterator.next();
