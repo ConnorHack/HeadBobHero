@@ -29,6 +29,7 @@ public class GameBoard extends View implements SensorEventListener {
 
     boolean hasInitializedBobs = false;
     private boolean startedGame = false;
+    private boolean isSongPaused = false ;
     private CountDownTimer countdownToStart = null;
     private int secondsLeftBeforeStart;
 
@@ -71,14 +72,18 @@ public class GameBoard extends View implements SensorEventListener {
     private int bobsMissed = 0;
     private int bobsMissedSinceLastMatch = 0;
     private int multiplier = 1;
+
     private int bobsMatchedInARow = 0;
     private int bobsMatchedInARowForNextMultiplier = 10;
     public int score = 0;
+    public int maxPossibleScore = 0;
     private int bgSplitLocation = 0;
 
     private Random random = new Random();
 
     private final int ALLOWED_MISSED = 10;
+    // multiplier is multiplied by 10, so this is 50
+    private final int MAX_MULTIPLIER = 5;
 
     private HashSet<HeadBob> currentMissedBobs = new HashSet<HeadBob>();
 
@@ -153,6 +158,17 @@ public class GameBoard extends View implements SensorEventListener {
             initializeHeadBobs();
 
             hasInitializedBobs = true;
+
+            // calculate the maximum score
+            int mult = 1;
+            for (int i = 0; i <= headBobs.size(); ++i) {
+
+                if (i % 10 == 0 && mult < MAX_MULTIPLIER) {
+                    mult++;
+                }
+                maxPossibleScore += 10 * mult;
+            }
+
         }
 
         if (!startedGame) {
@@ -168,6 +184,7 @@ public class GameBoard extends View implements SensorEventListener {
                     public void onFinish() {
                         secondsLeftBeforeStart = 1;
                         startedGame = true;
+                        isSongPaused = false ;
                     }
                 };
                 countdownToStart.start();
@@ -218,7 +235,10 @@ public class GameBoard extends View implements SensorEventListener {
             p.setAlpha(255);
             canvas.drawBitmap(bm_bg, bgSplitLocation, 0, p);
             canvas.drawBitmap(bm_bg, bgSplitLocation + getWidth(), 0, p);
-            bgSplitLocation -= 4;
+
+            if (!isSongPaused) {
+                bgSplitLocation -= 4;
+            }
             if(bgSplitLocation < -getWidth()) {
                 bgSplitLocation = 0;
             }
@@ -281,7 +301,7 @@ public class GameBoard extends View implements SensorEventListener {
                         bobsMatched++;
                         bobsMissedSinceLastMatch = 0;
                         bobsMatchedInARow++;
-                        if (bobsMatchedInARow >= bobsMatchedInARowForNextMultiplier) {
+                        if (bobsMatchedInARow >= bobsMatchedInARowForNextMultiplier && multiplier < MAX_MULTIPLIER) {
                             multiplier++;
                         }
                         score = score + (10 * multiplier);
@@ -312,20 +332,25 @@ public class GameBoard extends View implements SensorEventListener {
                     headBobIterator.remove();
                 }
 
-                bob.offset -= 4;
+                if (!isSongPaused) {
+                    bob.offset -= 4;
+                }
             }
+            textPaint.setColor(Color.WHITE);
+            textPaint.setAlpha(255);
+            textPaint.setTextAlign(Paint.Align.RIGHT);
+            textPaint.setTypeface(Typeface.SANS_SERIF);
+            textPaint.setTextSize(28);
+
+            canvas.drawText("x" + multiplier, 170, 35, textPaint);
 
             textPaint.setColor(Color.WHITE);
             textPaint.setAlpha(255);
             textPaint.setTextAlign(Paint.Align.RIGHT);
             textPaint.setTypeface(Typeface.SANS_SERIF);
-            textPaint.setTextSize(22);
+            textPaint.setTextSize(38);
 
-            if(bobsMissed == 0) {
-                canvas.drawText("100%", getWidth() - 20, 20, textPaint);
-            } else {
-                canvas.drawText("" + getBobPercentage() + "%", getWidth() - 20, 20, textPaint);
-            }
+            canvas.drawText("" + score, getWidth() - 20, 40, textPaint);
 
             textPaint.setColor(Color.RED);
             textPaint.setAlpha(255);
@@ -347,8 +372,8 @@ public class GameBoard extends View implements SensorEventListener {
             textPaint.setAlpha(255);
             textPaint.setTextAlign(Paint.Align.LEFT);
             textPaint.setTypeface(Typeface.SANS_SERIF);
-            textPaint.setTextSize(30);
-            canvas.drawText(gameFeedbackString.text, 145 , 20, textPaint);
+            textPaint.setTextSize(26);
+            canvas.drawText(gameFeedbackString.text, 145 , getHeight() - 3, textPaint);
 
             if(shouldDrawLine) {
                 p.setStrokeWidth(10);
@@ -356,6 +381,11 @@ public class GameBoard extends View implements SensorEventListener {
                 canvas.drawLine(128, 0, 128, getHeight(), p);
             }
         }
+    }
+
+    public void resetStartedRecording() {
+        startedGame = false ;
+        countdownToStart = null ;
     }
 
     @Override
@@ -388,5 +418,13 @@ public class GameBoard extends View implements SensorEventListener {
                 }
             }
         }
+    }
+
+    public void pauseSong() {
+        isSongPaused = true ;
+    }
+
+    public boolean isSongPaused() {
+        return isSongPaused ;
     }
 }
