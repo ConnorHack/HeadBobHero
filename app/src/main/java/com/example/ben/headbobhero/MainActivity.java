@@ -1,8 +1,11 @@
 package com.example.ben.headbobhero;
 
 import android.app.Activity;
+import android.content.ContentUris;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -74,7 +77,17 @@ public class MainActivity extends Activity {
     private void initList() {
         songList.clear();
         songList.addAll(JsonUtility.getAllSongs(new File(getFilesDir().getPath())));
-        //songList.add(new RegisteredSong("All Star", null, 0, new ArrayList<HeadBob>()));
+
+        Uri contentUri1 = Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song1);
+        Uri contentUri2 = Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song2);
+        Uri contentUri3 = Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song3);
+        Uri contentUri4 = Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song4);
+
+        songList.add(new RegisteredSong("September - Earth, Wind & Fire", contentUri1.toString(), 0, new ArrayList<HeadBob>()));
+        songList.add(new RegisteredSong("Juke Box Hero - Foreigner", contentUri2.toString(), 0, new ArrayList<HeadBob>()));
+        songList.add(new RegisteredSong("Danger Zone - Kenny Loggins", contentUri3.toString(), 0, new ArrayList<HeadBob>()));
+        songList.add(new RegisteredSong("What is Love - Haddaway", contentUri4.toString(), 0, new ArrayList<HeadBob>()));
+
     }
 
     @Override

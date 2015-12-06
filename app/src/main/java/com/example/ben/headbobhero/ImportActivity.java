@@ -45,10 +45,9 @@ public class ImportActivity extends Activity {
 
             public void onItemClick(AdapterView<?> parentAdapter, View view, int position, long id) {
                 Map.Entry<Long, String> songItem = (Map.Entry<Long, String>) parentAdapter.getItemAtPosition(position);
-                //joe below here is where you want to look
+                //joely below here is where you want to look
                 Uri contentUri = ContentUris.withAppendedId(
-                        android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songItem.getKey());
-
+                            android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songItem.getKey());
                 RegisteredSong song = new RegisteredSong(songItem.getValue(), contentUri.toString(), 0, new ArrayList<HeadBob>());
 
                 String songJson = JsonUtility.toJSON(song);
@@ -83,12 +82,6 @@ public class ImportActivity extends Activity {
                 allSongs.put(thisId, thisTitle);
             } while (cursor.moveToNext());
         }
-/*
-        allSongs.put((long) R.raw.song1, "test");
-        allSongs.put((long) R.raw.song2, "test");
-        allSongs.put((long) R.raw.song3, "test");
-        allSongs.put((long) R.raw.song4, "test");
-*/
         return allSongs;
     }
 

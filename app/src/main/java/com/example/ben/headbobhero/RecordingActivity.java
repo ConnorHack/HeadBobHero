@@ -289,7 +289,7 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         //this should be done in its own thread according to android documentation, but this works
         try {
             mediaPlayer.prepare();
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.out.println("------------------------ TESTING2 ---------------");
             System.out.println(e.getMessage());
             e.printStackTrace();
