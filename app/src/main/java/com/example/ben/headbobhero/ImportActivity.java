@@ -45,7 +45,7 @@ public class ImportActivity extends Activity {
 
             public void onItemClick(AdapterView<?> parentAdapter, View view, int position, long id) {
                 Map.Entry<Long, String> songItem = (Map.Entry<Long, String>) parentAdapter.getItemAtPosition(position);
-
+                //joe below here is where you want to look
                 Uri contentUri = ContentUris.withAppendedId(
                         android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, songItem.getKey());
 
@@ -80,16 +80,15 @@ public class ImportActivity extends Activity {
                 long thisId = cursor.getLong(idColumn);
                 String thisTitle = cursor.getString(titleColumn);
                 // below is processing the found audio
-                //if (cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC) != 0) {
                 allSongs.put(thisId, thisTitle);
             } while (cursor.moveToNext());
         }
-        /*
-        allSongs.put(Long.valueOf(R.raw.song1), "September - Earth, Wind & Fire");
-        allSongs.put(Long.valueOf(R.raw.song2), "Juke Box Hero - Foreigner");
-        allSongs.put(Long.valueOf(R.raw.song3), "Danger Zone - Kenny Loggins");
-        allSongs.put(Long.valueOf(R.raw.song4), "What is Love - Haddaway");
-        */
+/*
+        allSongs.put((long) R.raw.song1, "test");
+        allSongs.put((long) R.raw.song2, "test");
+        allSongs.put((long) R.raw.song3, "test");
+        allSongs.put((long) R.raw.song4, "test");
+*/
         return allSongs;
     }
 
