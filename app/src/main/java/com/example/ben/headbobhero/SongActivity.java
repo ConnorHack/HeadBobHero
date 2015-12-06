@@ -43,6 +43,15 @@ public class SongActivity extends Activity {
             }
         });
 
+        displayHighScore();
+    }
+
+    public void onBackPressed() {
+        setResult(Activity.RESULT_OK);
+        super.onBackPressed();
+    }
+
+    public void displayHighScore() {
         int score = song.getHighestScore();
 
         String scoreText = "No high score yet";
@@ -51,12 +60,7 @@ public class SongActivity extends Activity {
             scoreText = "High Score: " + score;
         }
 
-       ((TextView) findViewById(R.id.highscore)).setText(scoreText);
-    }
-
-    public void onBackPressed() {
-        setResult(Activity.RESULT_OK);
-        super.onBackPressed();
+        ((TextView) findViewById(R.id.highscore)).setText(scoreText);
     }
 
     @Override
@@ -88,6 +92,7 @@ public class SongActivity extends Activity {
             case (ACTIVITY_RESULT_DONE) : {
                 if (resultCode == Activity.RESULT_OK) {
                     song = JsonUtility.ParseJSON(data.getStringExtra("updated_song"));
+                    displayHighScore();
                 }
                 break;
             }

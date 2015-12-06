@@ -135,7 +135,12 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         }
 
         recordingGameBoard.pauseSong();
-        createDialogPauseRecording().show();
+
+        if (!recordingGameBoard.isRecordingFinished()) {
+            createDialogPauseRecording().show();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -391,6 +396,7 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         mediaPlayer.release();
         mediaPlayer = null;
         recordingDelayHandler.removeCallbacks(recordingDelayRunnable);
+        song.setHighestScore(0);
         String songJson = JsonUtility.toJSON(song);
         JsonUtility.writeJSONToFile(this, songJson, song.getSongName());
         Intent resultIntent = new Intent();

@@ -47,6 +47,8 @@ public class GameBoard extends View implements SensorEventListener {
     private final Bitmap bm_bob_right;
     private final Bitmap bm_bg;
 
+    private final Bitmap[] bm_multiplers;
+
     // Rate at which to collect values from sensors
     private static int RATE = SensorManager.SENSOR_DELAY_FASTEST;
 
@@ -112,6 +114,14 @@ public class GameBoard extends View implements SensorEventListener {
         bm_bob_left = BitmapFactory.decodeResource(getResources(), R.drawable.bob_left);
         bm_bob_right = BitmapFactory.decodeResource(getResources(), R.drawable.bob_right);
         bm_bg = BitmapFactory.decodeResource(getResources(), R.drawable.bob_background);
+
+        bm_multiplers = new Bitmap[] {
+                BitmapFactory.decodeResource(getResources(), R.drawable.mul1),
+                BitmapFactory.decodeResource(getResources(), R.drawable.mul2),
+                BitmapFactory.decodeResource(getResources(), R.drawable.mul3),
+                BitmapFactory.decodeResource(getResources(), R.drawable.mul4),
+                BitmapFactory.decodeResource(getResources(), R.drawable.mul5),
+        };
 
         // Register the sensor listener with the specified rate
         // Initialize the sensor manager, gravity sensor, and gravity vector
@@ -215,9 +225,9 @@ public class GameBoard extends View implements SensorEventListener {
             int yPos = (int) ((canvas.getHeight() / 2) - ((textPaint.descent() + textPaint.ascent()) / 2));
 
             if (bobsMissedSinceLastMatch > ALLOWED_MISSED) {
-                canvas.drawText("Song failed: " + getBobPercentage() + "%", xPos, yPos, textPaint);
+                canvas.drawText("Song failed: " + score, xPos, yPos, textPaint);
             } else {
-                canvas.drawText("Game Over: " + getBobPercentage() + "%", xPos, yPos, textPaint);
+                canvas.drawText("Game Over: " + score, xPos, yPos, textPaint);
             }
 
 
@@ -245,7 +255,7 @@ public class GameBoard extends View implements SensorEventListener {
 
 
             Iterator<HeadBob> headBobIterator = headBobs.iterator();
-            int bobYPos = canvas.getHeight() / 2 - 45;
+            int bobYPos = canvas.getHeight() / 2 - 42;
 
             long bobOffset = 0;
             while (headBobIterator.hasNext()) {
@@ -303,6 +313,7 @@ public class GameBoard extends View implements SensorEventListener {
                         bobsMatchedInARow++;
                         if (bobsMatchedInARow >= bobsMatchedInARowForNextMultiplier && multiplier < MAX_MULTIPLIER) {
                             multiplier++;
+                            bobsMatchedInARowForNextMultiplier += 10;
                         }
                         score = score + (10 * multiplier);
                         headBobIterator.remove();
@@ -315,6 +326,7 @@ public class GameBoard extends View implements SensorEventListener {
                         bobsMissed++;
                         bobsMissedSinceLastMatch++;
                         bobsMatchedInARow = 0;
+                        bobsMatchedInARowForNextMultiplier = 10;
                         multiplier = 1;
                         currentMissedBobs.add(bob);
                     }
@@ -342,7 +354,7 @@ public class GameBoard extends View implements SensorEventListener {
             textPaint.setTypeface(Typeface.SANS_SERIF);
             textPaint.setTextSize(28);
 
-            canvas.drawText("x" + multiplier, 170, 35, textPaint);
+            canvas.drawBitmap(bm_multiplers[multiplier - 1], 150, 0, p);
 
             textPaint.setColor(Color.WHITE);
             textPaint.setAlpha(255);

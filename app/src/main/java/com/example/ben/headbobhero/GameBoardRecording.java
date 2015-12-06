@@ -126,14 +126,16 @@ public class GameBoardRecording extends View {
             p.setAlpha(255);
             canvas.drawBitmap(bm_bg, bgSplitLocation, 0, p);
             canvas.drawBitmap(bm_bg, bgSplitLocation + getWidth(), 0, p);
-            bgSplitLocation -= 4;
+            if (!isSongPaused) {
+                bgSplitLocation -= 4;
+            }
             if(bgSplitLocation < -getWidth()) {
                 bgSplitLocation = 0;
             }
 
             // Song hasn't ended!
             Iterator<HeadBob> headBobIterator = headBobs.iterator();
-            int bobYPos = canvas.getHeight() / 2 - 50;
+            int bobYPos = canvas.getHeight() / 2 - 42;
 
             while (headBobIterator.hasNext()) {
                 HeadBob bob = headBobIterator.next();
