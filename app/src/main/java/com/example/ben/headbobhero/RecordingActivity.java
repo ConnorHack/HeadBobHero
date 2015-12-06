@@ -135,7 +135,12 @@ public class RecordingActivity extends Activity implements SensorEventListener {
         }
 
         recordingGameBoard.pauseSong();
-        createDialogPauseRecording().show();
+
+        if (!recordingGameBoard.isRecordingFinished()) {
+            createDialogPauseRecording().show();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override

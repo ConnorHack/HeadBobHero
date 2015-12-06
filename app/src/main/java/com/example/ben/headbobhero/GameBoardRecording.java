@@ -126,7 +126,9 @@ public class GameBoardRecording extends View {
             p.setAlpha(255);
             canvas.drawBitmap(bm_bg, bgSplitLocation, 0, p);
             canvas.drawBitmap(bm_bg, bgSplitLocation + getWidth(), 0, p);
-            bgSplitLocation -= 4;
+            if (!isSongPaused) {
+                bgSplitLocation -= 4;
+            }
             if(bgSplitLocation < -getWidth()) {
                 bgSplitLocation = 0;
             }
