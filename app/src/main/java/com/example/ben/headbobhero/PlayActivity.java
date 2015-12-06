@@ -24,6 +24,8 @@ public class PlayActivity extends Activity {
 
     private GameBoard playingGameBoard ;
 
+    private boolean isGameOver ;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -42,18 +44,17 @@ public class PlayActivity extends Activity {
         try {
             mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(song.getSongPath()));
         } catch (IOException e) {
-            System.out.println("------------------------ TESTING ---------------");
-            System.out.println(e.getMessage());
             e.printStackTrace();
         }
         //this should be done in its own thread according to android documentation, but this works
         try {
             mediaPlayer.prepare();
         } catch (IOException e) {
-            System.out.println("------------------------ HERERERHEJFHGHJDSHGFHJIJ ---------------");
-            System.out.println(e.getMessage());
             e.printStackTrace();
         }
+
+        isGameOver = false ;
+
         playMusicHandler = new Handler();
 
         playMusicHandler.postDelayed(playMusicDelay, 6850);
@@ -73,7 +74,12 @@ public class PlayActivity extends Activity {
         }
 
         playingGameBoard.pauseSong();
-        createDialogPausePlaying().show();
+
+        if (!isGameOver) {
+            createDialogPausePlaying().show();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -110,6 +116,7 @@ public class PlayActivity extends Activity {
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("updated_song", writeSong);
                 setResult(Activity.RESULT_OK, resultIntent);
+                isGameOver = true ;
             }
         });
     }
