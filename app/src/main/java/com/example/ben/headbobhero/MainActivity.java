@@ -78,15 +78,40 @@ public class MainActivity extends Activity {
         songList.clear();
         songList.addAll(JsonUtility.getAllSongs(new File(getFilesDir().getPath())));
 
-        Uri contentUri1 = Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song1);
-        Uri contentUri2 = Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song2);
-        Uri contentUri3 = Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song3);
-        Uri contentUri4 = Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song4);
+        Uri contentUris[] = {
+                Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song1),
+                Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song2),
+                Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song3),
+                Uri.parse("android.resource://com.example.ben.headbobhero/" + R.raw.song4)
+        };
 
-        songList.add(new RegisteredSong("September - Earth, Wind & Fire", contentUri1.toString(), 0, new ArrayList<HeadBob>()));
-        songList.add(new RegisteredSong("Juke Box Hero - Foreigner", contentUri2.toString(), 0, new ArrayList<HeadBob>()));
-        songList.add(new RegisteredSong("Danger Zone - Kenny Loggins", contentUri3.toString(), 0, new ArrayList<HeadBob>()));
-        songList.add(new RegisteredSong("What is Love - Haddaway", contentUri4.toString(), 0, new ArrayList<HeadBob>()));
+        boolean hasSong[] = {
+                false, false, false, false
+        };
+
+        for(RegisteredSong song: songList) {
+            for(int i = 0; i < contentUris.length; i++) {
+                if(song.getSongPath().equals(contentUris[i].toString())) {
+                    hasSong[i] = true;
+                }
+            }
+        }
+
+        if(!hasSong[0]) {
+            songList.add(new RegisteredSong("September - Earth, Wind & Fire", contentUris[0].toString(), 0, new ArrayList<HeadBob>()));
+        }
+
+        if(!hasSong[1]) {
+            songList.add(new RegisteredSong("Juke Box Hero - Foreigner", contentUris[1].toString(), 0, new ArrayList<HeadBob>()));
+        }
+
+        if(!hasSong[2]) {
+            songList.add(new RegisteredSong("Danger Zone - Kenny Loggins", contentUris[2].toString(), 0, new ArrayList<HeadBob>()));
+        }
+
+        if(!hasSong[3]) {
+            songList.add(new RegisteredSong("What is Love - Haddaway", contentUris[3].toString(), 0, new ArrayList<HeadBob>()));
+        }
 
     }
 
