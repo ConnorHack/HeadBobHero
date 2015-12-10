@@ -6,7 +6,7 @@
     <string name="title_activity_play">Playing Head Bob Hero</string>
     <string name="play_text">Play</string>
     <string name="record_text">Record</string>
-    <string name="import_text">Import</string>\
-    <string name="title_activity_song_activiy">SongActiviy</string>
-    <string name="title_activity_import">ImportActivity</string>
+    <string name="import_text">Import</string>
+    <string name="title_activity_song_activiy">Song</string>
+    <string name="title_activity_import">Import Song</string>
 </resources>
